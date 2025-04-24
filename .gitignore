@@ -16,3 +16,6 @@ yarn-error.log*
 # Sistema
 .DS_Store
 Thumbs.db
+
+# Arquivos na raiz
+.pdf
