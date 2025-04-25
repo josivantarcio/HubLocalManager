@@ -18,7 +18,9 @@ export class UsersService {
       ...createUserDto,
       password: hashedPassword,
     });
-    return this.usersRepository.save(user);
+    const savedUser = await this.usersRepository.save(user);
+    const { password, ...result } = savedUser; // Remove a senha
+    return result;
   }
 
   async findByEmail(email: string) {
