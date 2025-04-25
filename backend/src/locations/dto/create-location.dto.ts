@@ -1,5 +1,4 @@
-import { IsNotEmpty, IsString, Length } from 'class-validator';
-import { Type } from 'class-transformer';
+import { IsNotEmpty, IsString, Length, IsNumber } from 'class-validator';
 
 export class CreateLocationDto {
   @IsString()
@@ -30,6 +29,6 @@ export class CreateLocationDto {
   @Length(2, 2)
   state: string;
 
-  @Type(() => Object)
-  company: { id: number };
+  @IsNumber()
+  companyId: number;
 }

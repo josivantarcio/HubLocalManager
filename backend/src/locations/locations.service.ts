@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Location } from './location.entity';
@@ -14,9 +14,11 @@ export class LocationsService {
     private companiesService: CompaniesService,
   ) {}
 
-  async create(createLocationDto: CreateLocationDto) {
-    const { company: companyDto, ...locationData } = createLocationDto;
-    const company = await this.companiesService.findOne(companyDto.id);
+  async create(createLocationDto: CreateLocationDto, userId: number) {
+    const { companyId, ...locationData } = createLocationDto;
+    
+    // Verifica se a empresa pertence ao usuário
+    const company = await this.companiesService.findOne(companyId, userId);
     
     const location = this.locationsRepository.create({
       ...locationData,
@@ -26,40 +28,51 @@ export class LocationsService {
     return this.locationsRepository.save(location);
   }
 
-  async findAll() {
-    return this.locationsRepository.find({ relations: ['company'] });
+  async findAll(userId: number) {
+    return this.locationsRepository.find({ 
+      relations: ['company', 'company.user'],
+      where: { company: { user: { id: userId } } }
+    });
   }
 
-  async findOne(id: number) {
+  async findOne(id: number, userId: number) {
     const location = await this.locationsRepository.findOne({
       where: { id },
-      relations: ['company'],
+      relations: ['company', 'company.user'],
     });
     
     if (!location) {
       throw new NotFoundException(`Location with ID ${id} not found`);
     }
     
+    // Verificar se o local pertence a uma empresa do usuário
+    if (location.company.user.id !== userId) {
+      throw new ForbiddenException('You do not have access to this location');
+    }
+    
     return location;
   }
 
-  async findByCompany(companyId: number) {
+  async findByCompany(companyId: number, userId: number) {
+    // Verifica se a empresa pertence ao usuário
+    await this.companiesService.findOne(companyId, userId);
+    
     return this.locationsRepository.find({
       where: { company: { id: companyId } },
       relations: ['company'],
     });
   }
 
-  async update(id: number, updateLocationDto: UpdateLocationDto) {
-    const location = await this.findOne(id);
+  async update(id: number, updateLocationDto: UpdateLocationDto, userId: number) {
+    const location = await this.findOne(id, userId);
     
     Object.assign(location, updateLocationDto);
     
     return this.locationsRepository.save(location);
   }
 
-  async remove(id: number) {
-    const location = await this.findOne(id);
+  async remove(id: number, userId: number) {
+    const location = await this.findOne(id, userId);
     await this.locationsRepository.remove(location);
   }
 }

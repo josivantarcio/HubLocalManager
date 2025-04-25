@@ -1,5 +1,4 @@
 import { IsString, Length } from 'class-validator';
-import { Type } from 'class-transformer';
 
 export class CreateCompanyDto {
   @IsString()
@@ -8,7 +7,7 @@ export class CreateCompanyDto {
   @IsString()
   @Length(14, 14)
   cnpj: string;
-
-  @Type(() => Object)
-  user: { id: number };
+  
+  @IsString()
+  website: string;
 }
