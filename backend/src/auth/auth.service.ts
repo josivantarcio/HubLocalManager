@@ -1,36 +1,29 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
-import { UsersService } from '../users/users.service';
+import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { RegisterDto } from './dto/register.dto'; // Verifique este caminho
+import { UsersService } from '../users/users.service';
 import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class AuthService {
   constructor(
-    private readonly usersService: UsersService,
-    private readonly jwtService: JwtService,
+    private usersService: UsersService,
+    private jwtService: JwtService,
   ) {}
 
-  async validateUser(payload: { sub: number; email: string }) {
-    const user = await this.usersService.findOne(payload.sub);
-    if (!user || user.email !== payload.email) {
-      return null;
-    }
-    return user;
-  }
-
-  async register(registerDto: RegisterDto) {
-    return this.usersService.create(registerDto);
-  }
-
-  async login(email: string, password: string) {
+  async validateUser(email: string, pass: string): Promise<any> {
     const user = await this.usersService.findByEmail(email);
-    if (!user || !(await bcrypt.compare(password, user.password))) {
-      throw new UnauthorizedException('Invalid credentials');
+    if (user && await bcrypt.compare(pass, user.password)) {
+      const { password, ...result } = user; // Remove a senha do retorno
+      return result;
     }
-    const payload = { sub: user.id, email: user.email };
+    return null;
+  }
+
+  async login(user: any) {
+    const payload = { email: user.email, sub: user.id };
     return {
       access_token: this.jwtService.sign(payload),
+      user: { id: user.id, name: user.name }, // Dados úteis para o front
     };
   }
 }

@@ -1,24 +1,19 @@
-import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, OneToMany } from 'typeorm';
+import { Entity, Column, ManyToOne, OneToMany } from 'typeorm';
 import { User } from '../users/user.entity';
 import { Location } from '../locations/location.entity';
 
 @Entity()
 export class Company {
-  @PrimaryGeneratedColumn()
-  id: number;
-
-  @Column()
-  name: string;
-
-  @Column()
+  @Column({ unique: true }) // CNPJ único por empresa
   cnpj: string;
 
-  @Column({ nullable: true })
-  website: string;
+  @Column({ nullable: true }) // Diferencial: Logo para SaaS
+  logoUrl: string;
 
-  @ManyToOne(() => User, (user) => user.companies)
+  // Relacionamentos (crucial para SaaS)
+  @ManyToOne(() => User, user => user.companies)
   user: User;
 
-  @OneToMany(() => Location, (location) => location.company)
+  @OneToMany(() => Location, location => location.company)
   locations: Location[];
 }
