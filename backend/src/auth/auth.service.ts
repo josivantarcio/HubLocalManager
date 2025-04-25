@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { RegisterDto } from './dto/register.dto';
 import { JwtService } from '@nestjs/jwt';
 import { UsersService } from '../users/users.service';
 import * as bcrypt from 'bcrypt';
@@ -10,6 +11,15 @@ export class AuthService {
     private jwtService: JwtService,
   ) {}
 
+  async register(registerDto: RegisterDto): Promise<any> {
+    const { email, password, name } = registerDto;
+    return this.usersService.create({ email, password, name });
+  }
+
+  async validateUserByEmail(email: string): Promise<any> {
+    return this.usersService.findOneByEmail(email);
+  }
+
   async validateUser(email: string, pass: string): Promise<any> {
     const user = await this.usersService.findByEmail(email);
     if (user && await bcrypt.compare(pass, user.password)) {
@@ -19,11 +29,12 @@ export class AuthService {
     return null;
   }
 
-  async login(user: any) {
-    const payload = { email: user.email, sub: user.id };
-    return {
-      access_token: this.jwtService.sign(payload),
-      user: { id: user.id, name: user.name }, // Dados úteis para o front
-    };
+  async login(loginDto: LoginDto): Promise<any> {
+  const { email, password } = loginDto;
+  const user = await this.validateUser(email, password);
+  if (user) {
+    return { access_token: 'jwt_token' }; // Implemente a geração do JWT
   }
+  throw new Error('Invalid credentials');
+}
 }

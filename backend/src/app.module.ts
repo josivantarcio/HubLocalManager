@@ -2,34 +2,28 @@ import { Module } from '@nestjs/common';
 import { APP_INTERCEPTOR } from '@nestjs/core';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { ThrottlerModule } from '@nestjs/throttler';
+import { ThrottlerModule, ThrottlerModuleOptions } from '@nestjs/throttler';
 import { LoggerModule } from './common/logger/logger.module';
 import { LoggingInterceptor } from './common/logger/logging.interceptor';
 import { UsersModule } from './users/users.module';
 import { CompaniesModule } from './companies/companies.module';
 import { LocationsModule } from './locations/locations.module';
 import { AuthModule } from './auth/auth.module';
-import { LocationsModule } from './locations/locations.module';
 
 @Module({
   imports: [
-    // Configurações básicas
-    ConfigModule.forRoot({ 
+    ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: `.env.${process.env.NODE_ENV || 'development'}`,
     }),
-    
-    // Proteção contra brute force
     ThrottlerModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
-      useFactory: (config: ConfigService) => ({
+      useFactory: (config: ConfigService): ThrottlerModuleOptions => ({
         ttl: config.get<number>('THROTTLE_TTL', 60),
         limit: config.get<number>('THROTTLE_LIMIT', 10),
       }),
     }),
-    
-    // Database com TypeORM
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
@@ -41,7 +35,7 @@ import { LocationsModule } from './locations/locations.module';
         password: config.get<string>('DB_PASSWORD', 'postgres'),
         database: config.get<string>('DB_NAME', 'hublocal'),
         entities: [__dirname + '/**/*.entity{.ts,.js}'],
-        synchronize: config.get<boolean>('DB_SYNCHRONIZE', false), // false em produção!
+        synchronize: config.get<boolean>('DB_SYNCHRONIZE', false),
         logging: config.get<boolean>('DB_LOGGING', true),
         extra: {
           ssl: config.get<boolean>('DB_SSL', false)
@@ -50,8 +44,6 @@ import { LocationsModule } from './locations/locations.module';
         },
       }),
     }),
-    
-    // Módulos da aplicação
     UsersModule,
     CompaniesModule,
     LocationsModule,
