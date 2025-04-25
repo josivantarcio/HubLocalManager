@@ -20,8 +20,10 @@ import { AuthModule } from './auth/auth.module';
         username: configService.get<string>('DB_USERNAME'),
         password: configService.get<string>('DB_PASSWORD'),
         database: configService.get<string>('DB_NAME'),
-        autoLoadEntities: true,
-        synchronize: true, // Use migrations in production
+        entities: [__dirname + '/**/*.entity{.ts,.js}'],
+        synchronize: true,
+        ssl: { rejectUnauthorized: false },
+        logging: true, // Para depurar
       }),
       inject: [ConfigService],
     }),

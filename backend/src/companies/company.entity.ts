@@ -1,7 +1,7 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, ManyToOne } from 'typeorm';
 import { User } from '../users/user.entity';
 
-@Entity('companies')
+@Entity()
 export class Company {
   @PrimaryGeneratedColumn()
   id: number;
@@ -12,6 +12,6 @@ export class Company {
   @Column()
   cnpj: string;
 
-  @ManyToOne(() => User, user => user.companies)
-  user: User | null;
+  @ManyToOne(() => User, (user) => user.companies)
+  user: User;
 }
