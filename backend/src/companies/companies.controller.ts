@@ -1,41 +1,38 @@
-import { Controller, Get, Post, Put, Delete, Body, Param, NotFoundException } from '@nestjs/common';
+import { Controller, Get, Post, Put, Delete, Param, Body, HttpCode, HttpStatus, UseGuards } from '@nestjs/common';
 import { CompaniesService } from './companies.service';
-import { Company } from './company.entity';
+import { CreateCompanyDto } from './dto/create-company.dto';
+import { UpdateCompanyDto } from './dto/update-company.dto';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 
 @Controller('companies')
+@UseGuards(JwtAuthGuard)
 export class CompaniesController {
   constructor(private readonly companiesService: CompaniesService) {}
 
+  @Post()
+  @HttpCode(HttpStatus.CREATED)
+  async create(@Body() createCompanyDto: CreateCompanyDto) {
+    return this.companiesService.create(createCompanyDto);
+  }
+
   @Get()
-  findAll(): Promise<Company[]> {
+  async findAll() {
     return this.companiesService.findAll();
   }
 
   @Get(':id')
-  async findOne(@Param('id') id: string): Promise<Company> {
-    const company = await this.companiesService.findOne(+id); // Linha 16
-    if (!company) {
-      throw new NotFoundException(`Company with ID ${id} not found`);
-    }
-    return company;
-  }
-
-  @Post()
-  create(@Body() company: Partial<Company>): Promise<Company> {
-    return this.companiesService.create(company);
+  async findOne(@Param('id') id: string) {
+    return this.companiesService.findOne(+id);
   }
 
   @Put(':id')
-  async update(@Param('id') id: string, @Body() company: Partial<Company>): Promise<Company> {
-    const updatedCompany = await this.companiesService.update(+id, company); // Linha 26
-    if (!updatedCompany) {
-      throw new NotFoundException(`Company with ID ${id} not found`);
-    }
-    return updatedCompany;
+  async update(@Param('id') id: string, @Body() updateCompanyDto: UpdateCompanyDto) {
+    return this.companiesService.update(+id, updateCompanyDto);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string): Promise<void> {
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async remove(@Param('id') id: string) {
     return this.companiesService.remove(+id);
   }
 }
