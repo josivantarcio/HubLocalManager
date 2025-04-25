@@ -16,5 +16,5 @@ export class User {
   password: string;
 
   @OneToMany(() => Company, company => company.user)
-  companies: Company[] | null; // Permite null
+  companies: Company[] | null;
 }

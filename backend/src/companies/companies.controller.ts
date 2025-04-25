@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Put, Delete, Body, Param } from '@nestjs/common';
+import { Controller, Get, Post, Put, Delete, Body, Param, NotFoundException } from '@nestjs/common';
 import { CompaniesService } from './companies.service';
 import { Company } from './company.entity';
 
@@ -12,8 +12,12 @@ export class CompaniesController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string): Promise<Company> {
-    return this.companiesService.findOne(+id);
+  async findOne(@Param('id') id: string): Promise<Company> {
+    const company = await this.companiesService.findOne(+id); // Linha 16
+    if (!company) {
+      throw new NotFoundException(`Company with ID ${id} not found`);
+    }
+    return company;
   }
 
   @Post()
@@ -22,8 +26,12 @@ export class CompaniesController {
   }
 
   @Put(':id')
-  update(@Param('id') id: string, @Body() company: Partial<Company>): Promise<Company> {
-    return this.companiesService.update(+id, company);
+  async update(@Param('id') id: string, @Body() company: Partial<Company>): Promise<Company> {
+    const updatedCompany = await this.companiesService.update(+id, company); // Linha 26
+    if (!updatedCompany) {
+      throw new NotFoundException(`Company with ID ${id} not found`);
+    }
+    return updatedCompany;
   }
 
   @Delete(':id')

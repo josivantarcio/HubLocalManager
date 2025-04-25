@@ -1,18 +1,34 @@
-import { Test, TestingModule } from '@nestjs/testing';
-import { CompaniesService } from './companies.service';
+import { Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { Company } from './company.entity';
 
-describe('CompaniesService', () => {
-  let service: CompaniesService;
+@Injectable()
+export class CompaniesService {
+  constructor(
+    @InjectRepository(Company)
+    private companiesRepository: Repository<Company>,
+  ) {}
 
-  beforeEach(async () => {
-    const module: TestingModule = await Test.createTestingModule({
-      providers: [CompaniesService],
-    }).compile();
+  async findAll(): Promise<Company[]> {
+    return this.companiesRepository.find({ relations: ['user'] });
+  }
 
-    service = module.get<CompaniesService>(CompaniesService);
-  });
+  async findOne(id: number): Promise<Company | null> {
+    return this.companiesRepository.findOne({ where: { id }, relations: ['user'] });
+  }
 
-  it('should be defined', () => {
-    expect(service).toBeDefined();
-  });
-});
+  async create(company: Partial<Company>): Promise<Company> {
+    const newCompany = this.companiesRepository.create(company);
+    return this.companiesRepository.save(newCompany);
+  }
+
+  async update(id: number, company: Partial<Company>): Promise<Company | null> {
+    await this.companiesRepository.update(id, company);
+    return this.companiesRepository.findOne({ where: { id }, relations: ['user'] });
+  }
+
+  async remove(id: number): Promise<void> {
+    await this.companiesRepository.delete(id);
+  }
+}

@@ -13,5 +13,5 @@ export class Company {
   cnpj: string;
 
   @ManyToOne(() => User, user => user.companies)
-  user: User | null; // Permite null
+  user: User | null;
 }
