@@ -1,4 +1,3 @@
-// users.service.ts
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -11,8 +10,16 @@ export class UsersService {
     private usersRepository: Repository<User>,
   ) {}
 
-  async findByEmail(email: string): Promise<User | undefined> {
-    return this.usersRepository.findOne({ where: { email } });
+  async findByEmail(email: string): Promise<User> {
+    const user = await this.usersRepository.findOne({ 
+      where: { email },
+      select: ['id', 'name', 'email', 'password']
+    });
+    
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+    return user;
   }
   
   async findOne(id: number): Promise<User> {

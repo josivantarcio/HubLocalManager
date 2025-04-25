@@ -1,11 +1,9 @@
-import { Entity, Column, PrimaryGeneratedColumn, ManyToOne } from 'typeorm';
+// src/locations/location.entity.ts
+import { Entity, Column, ManyToOne } from 'typeorm';
 import { Company } from '../companies/company.entity';
 
 @Entity()
 export class Location {
-  @PrimaryGeneratedColumn()
-  id: number;
-
   @Column()
   name: string;
 
@@ -27,6 +25,6 @@ export class Location {
   @Column()
   state: string;
 
-  @ManyToOne(() => Company, (company) => company.locations)
+  @ManyToOne(() => Company, company => company.locations)
   company: Company;
 }

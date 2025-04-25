@@ -1,16 +1,31 @@
 import { Entity, Column, ManyToOne, OneToMany } from 'typeorm';
 import { User } from '../users/user.entity';
 import { Location } from '../locations/location.entity';
+import { CreateDateColumn, UpdateDateColumn, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity()
 export class Company {
-  @Column({ unique: true }) // CNPJ único por empresa
+  @PrimaryGeneratedColumn()
+  id: number;
+
+  @Column()
+  name: string;
+
+  @Column()
+  website: string;
+
+  @Column({ unique: true })
   cnpj: string;
 
-  @Column({ nullable: true }) // Diferencial: Logo para SaaS
+  @Column({ nullable: true })
   logoUrl: string;
 
-  // Relacionamentos (crucial para SaaS)
+  @CreateDateColumn()
+  createdAt: Date;
+
+  @UpdateDateColumn()
+  updatedAt: Date;
+
   @ManyToOne(() => User, user => user.companies)
   user: User;
 
