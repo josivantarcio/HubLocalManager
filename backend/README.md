@@ -83,6 +83,27 @@ Check out a few resources that may come in handy when working with NestJS:
 - To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
 - Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
 
+## API Endpoints
+
+### Autenticação
+- `POST /auth/register` - Registrar novo usuário
+- `POST /auth/login` - Login
+
+### Empresas
+- `GET /companies` - Listar todas as empresas
+- `GET /companies/:id` - Visualizar detalhes de uma empresa
+- `POST /companies` - Criar nova empresa
+- `PUT /companies/:id` - Atualizar empresa
+- `DELETE /companies/:id` - Deletar empresa
+
+### Locais
+- `GET /locations` - Listar todos os locais
+- `GET /locations?companyId=X` - Listar locais de uma empresa específica
+- `GET /locations/:id` - Visualizar detalhes de um local
+- `POST /locations` - Criar novo local
+- `PUT /locations/:id` - Atualizar local
+- `DELETE /locations/:id` - Deletar local
+
 ## Support
 
 Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
