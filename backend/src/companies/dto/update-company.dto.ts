@@ -1,4 +1,4 @@
-import { IsString, Length, IsOptional } from 'class-validator';
+import { IsString, IsOptional } from 'class-validator';
 
 export class UpdateCompanyDto {
   @IsString()
@@ -6,7 +6,6 @@ export class UpdateCompanyDto {
   name?: string;
 
   @IsString()
-  @Length(14, 14)
   @IsOptional()
   cnpj?: string;
 }

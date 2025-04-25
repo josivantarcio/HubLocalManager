@@ -12,6 +12,6 @@ export class Company {
   @Column()
   cnpj: string;
 
-  @ManyToOne(() => User, (user) => user.companies)
+  @ManyToOne(() => User)
   user: User;
 }

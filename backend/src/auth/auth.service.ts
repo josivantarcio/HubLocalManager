@@ -1,7 +1,7 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { UsersService } from '../users/users.service';
 import { JwtService } from '@nestjs/jwt';
-import { RegisterDto } from './dto/register.dto';
+import { RegisterDto } from './dto/register.dto'; // Verifique este caminho
 import * as bcrypt from 'bcrypt';
 
 @Injectable()
@@ -10,6 +10,14 @@ export class AuthService {
     private readonly usersService: UsersService,
     private readonly jwtService: JwtService,
   ) {}
+
+  async validateUser(payload: { sub: number; email: string }) {
+    const user = await this.usersService.findOne(payload.sub);
+    if (!user || user.email !== payload.email) {
+      return null;
+    }
+    return user;
+  }
 
   async register(registerDto: RegisterDto) {
     return this.usersService.create(registerDto);

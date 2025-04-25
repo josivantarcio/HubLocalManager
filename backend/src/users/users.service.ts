@@ -1,37 +1,32 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from './user.entity';
-import { CreateUserDto } from './dto/create-user.dto';
+import { RegisterDto } from '../auth/dto/register.dto';
 import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class UsersService {
   constructor(
     @InjectRepository(User)
-    private usersRepository: Repository<User>,
+    private userRepository: Repository<User>,
   ) {}
 
-  async create(createUserDto: CreateUserDto) {
-    const hashedPassword = await bcrypt.hash(createUserDto.password, 10);
-    const user = this.usersRepository.create({
-      ...createUserDto,
+  async create(registerDto: RegisterDto) {
+    const hashedPassword = await bcrypt.hash(registerDto.password, 10);
+    const user = this.userRepository.create({
+      name: registerDto.name,
+      email: registerDto.email,
       password: hashedPassword,
     });
-    const savedUser = await this.usersRepository.save(user);
-    const { password, ...result } = savedUser; // Remove a senha
-    return result;
+    return this.userRepository.save(user);
+  }
+
+  async findOne(id: number) {
+    return this.userRepository.findOne({ where: { id } });
   }
 
   async findByEmail(email: string) {
-    return this.usersRepository.findOne({ where: { email } });
-  }
-
-  async findById(id: number) {
-    const user = await this.usersRepository.findOne({ where: { id } });
-    if (!user) {
-      throw new NotFoundException(`User with ID ${id} not found`);
-    }
-    return user;
+    return this.userRepository.findOne({ where: { email } });
   }
 }

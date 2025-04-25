@@ -1,13 +1,19 @@
-import { IsString, IsEmail, MinLength } from 'class-validator';
+import { IsString, IsNotEmpty } from 'class-validator';
 
-export class CreateUserDto {
+class UserDto {
+  id: number;
+  name: string;
+  email: string;
+}
+
+export class CreateCompanyDto {
   @IsString()
+  @IsNotEmpty()
   name: string;
 
-  @IsEmail()
-  email: string;
-
   @IsString()
-  @MinLength(4)
-  password: string;
+  @IsNotEmpty()
+  cnpj: string;
+
+  user: UserDto;
 }
