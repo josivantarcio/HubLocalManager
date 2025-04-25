@@ -29,12 +29,16 @@ export class AuthService {
     return null;
   }
 
-  async login(loginDto: LoginDto): Promise<any> {
+  async login(loginDto: LoginDto): Promise<{ access_token: string }> {
   const { email, password } = loginDto;
   const user = await this.validateUser(email, password);
-  if (user) {
-    return { access_token: 'jwt_token' }; // Implemente a geração do JWT
+  
+  if (!user) {
+    throw new UnauthorizedException('Credenciais inválidas');
   }
-  throw new Error('Invalid credentials');
-}
+  
+  const payload = { email: user.email, sub: user.id };
+  return {
+    access_token: this.jwtService.sign(payload),
+  };
 }
