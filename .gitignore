@@ -19,3 +19,8 @@ Thumbs.db
 
 # Arquivos na raiz
 Teste novos devs - hublocal.pdf
+
+# amplify
+.amplify
+amplify_outputs*
+amplifyconfiguration*
