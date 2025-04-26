@@ -87,7 +87,7 @@ export default function Dashboard() {
 
         {/* Estatísticas principais */}
         <Grid container spacing={3}>
-          <Grid item xs={12} md={6} lg={4}>
+          <Grid component="div" item xs={12} md={6} lg={4}>
             <Paper elevation={3}>
               <Item>
                 <Typography variant="h6">Total de Empresas</Typography>
@@ -96,7 +96,7 @@ export default function Dashboard() {
             </Paper>
           </Grid>
 
-          <Grid item xs={12} md={6} lg={4}>
+          <Grid component="div" item xs={12} md={6} lg={4}>
             <Paper elevation={3}>
               <Item>
                 <Typography variant="h6">Total de Unidades</Typography>
@@ -105,7 +105,7 @@ export default function Dashboard() {
             </Paper>
           </Grid>
 
-          <Grid item xs={12} md={6} lg={4}>
+          <Grid component="div" item xs={12} md={6} lg={4}>
             <Paper elevation={3}>
               <Item>
                 <Typography variant="h6">Faturamento</Typography>
@@ -117,7 +117,7 @@ export default function Dashboard() {
 
         {/* Listas de itens recentes */}
         <Grid container spacing={3} sx={{ mt: 3 }}>
-          <Grid item xs={12} md={6}>
+          <Grid component="div" item xs={12} md={6}>
             <Card>
               <CardContent>
                 <Typography variant="h6" gutterBottom>
@@ -140,7 +140,7 @@ export default function Dashboard() {
             </Card>
           </Grid>
 
-          <Grid item xs={12} md={6}>
+          <Grid component="div" item xs={12} md={6}>
             <Card>
               <CardContent>
                 <Typography variant="h6" gutterBottom>
