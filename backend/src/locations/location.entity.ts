@@ -1,9 +1,12 @@
 // src/locations/location.entity.ts
-import { Entity, Column, ManyToOne } from 'typeorm';
+import { Entity, Column, ManyToOne, CreateDateColumn, UpdateDateColumn, PrimaryGeneratedColumn } from 'typeorm';
 import { Company } from '../companies/company.entity';
 
 @Entity()
 export class Location {
+  @PrimaryGeneratedColumn()
+  id: number;
+
   @Column()
   name: string;
 
@@ -24,6 +27,12 @@ export class Location {
 
   @Column()
   state: string;
+
+  @CreateDateColumn()
+  createdAt: Date;
+
+  @UpdateDateColumn()
+  updatedAt: Date;
 
   @ManyToOne(() => Company, company => company.locations)
   company: Company;

@@ -1,11 +1,21 @@
-import { IsString, IsOptional } from 'class-validator';
+import { IsString, IsOptional, IsUrl, Length } from 'class-validator';
 
 export class UpdateCompanyDto {
-  @IsString()
   @IsOptional()
+  @IsString()
+  @Length(2, 100)
   name?: string;
 
-  @IsString()
   @IsOptional()
+  @IsString()
+  @Length(14, 14)
   cnpj?: string;
+
+  @IsOptional()
+  @IsUrl()
+  website?: string;
+
+  @IsOptional()
+  @IsUrl()
+  logoUrl?: string;
 }
