@@ -11,9 +11,14 @@ import {
   ListItem,
   ListItemText,
   Divider,
+  Paper,
 } from '@mui/material';
 import { companyService, locationService } from '@/services/api';
 import MainLayout from '@/components/layout/MainLayout';
+import { useRouter } from 'next/navigation';
+import { useSelector } from 'react-redux';
+import { RootState } from '@/store';
+import { styled } from '@mui/material/styles';
 
 interface DashboardStats {
   totalCompanies: number;
@@ -22,13 +27,30 @@ interface DashboardStats {
   recentLocations: any[];
 }
 
+const Item = styled(Paper)(({ theme }) => ({
+  backgroundColor: theme.palette.mode === 'dark' ? '#1A2027' : '#fff',
+  ...theme.typography.body2,
+  padding: theme.spacing(2),
+  textAlign: 'center',
+  color: theme.palette.text.secondary,
+  height: '100%',
+}));
+
 export default function Dashboard() {
+  const router = useRouter();
+  const { isAuthenticated } = useSelector((state: RootState) => state.auth);
   const [stats, setStats] = useState<DashboardStats>({
     totalCompanies: 0,
     totalLocations: 0,
     recentCompanies: [],
     recentLocations: [],
   });
+
+  useEffect(() => {
+    if (!isAuthenticated) {
+      router.push('/');
+    }
+  }, [isAuthenticated, router]);
 
   useEffect(() => {
     const fetchStats = async () => {
@@ -52,32 +74,34 @@ export default function Dashboard() {
     fetchStats();
   }, []);
 
+  if (!isAuthenticated) {
+    return null;
+  }
+
   return (
     <MainLayout>
-      <Box sx={{ flexGrow: 1 }}>
+      <Box sx={{ flexGrow: 1, p: 3 }}>
         <Typography variant="h4" gutterBottom>
           Dashboard
         </Typography>
         <Grid container spacing={3}>
-          <Grid item xs={12} sm={6} md={3}>
-            <Card>
-              <CardContent>
-                <Typography color="textSecondary" gutterBottom>
-                  Total de Empresas
-                </Typography>
-                <Typography variant="h4">{stats.totalCompanies}</Typography>
-              </CardContent>
-            </Card>
+          <Grid item xs={12} md={6} lg={4}>
+            <Item>
+              <Typography variant="h6">Total de Empresas</Typography>
+              <Typography variant="h4">{stats.totalCompanies}</Typography>
+            </Item>
           </Grid>
-          <Grid item xs={12} sm={6} md={3}>
-            <Card>
-              <CardContent>
-                <Typography color="textSecondary" gutterBottom>
-                  Total de Unidades
-                </Typography>
-                <Typography variant="h4">{stats.totalLocations}</Typography>
-              </CardContent>
-            </Card>
+          <Grid item xs={12} md={6} lg={4}>
+            <Item>
+              <Typography variant="h6">Total de Unidades</Typography>
+              <Typography variant="h4">{stats.totalLocations}</Typography>
+            </Item>
+          </Grid>
+          <Grid item xs={12} md={6} lg={4}>
+            <Item>
+              <Typography variant="h6">Faturamento</Typography>
+              <Typography variant="h4">R$ 0,00</Typography>
+            </Item>
           </Grid>
         </Grid>
         <Grid container spacing={3} sx={{ mt: 3 }}>

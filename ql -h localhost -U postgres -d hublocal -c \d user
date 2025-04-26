@@ -1,0 +1,8 @@
+           List of relations
+ Schema |    Name    | Type  |  Owner   
+--------+------------+-------+----------
+ public | company    | table | postgres
+ public | migrations | table | postgres
+ public | user       | table | postgres
+(3 rows)
+

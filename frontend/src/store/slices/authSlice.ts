@@ -45,10 +45,14 @@ const authSlice = createSlice({
       state.loading = false;
       state.error = null;
     },
+    setCredentials: (state, action: PayloadAction<User>) => {
+      state.user = action.payload;
+      state.isAuthenticated = true;
+    },
   },
 });
 
-export const { loginStart, loginSuccess, loginFailure, logout } = authSlice.actions;
+export const { loginStart, loginSuccess, loginFailure, logout, setCredentials } = authSlice.actions;
 
 export const login = (email: string, password: string) => async (dispatch: any) => {
   try {
