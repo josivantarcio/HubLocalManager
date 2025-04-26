@@ -85,23 +85,29 @@ export default function Dashboard() {
           Dashboard
         </Typography>
         <Grid container spacing={3}>
-          <Grid component={Paper} item xs={12} md={6} lg={4}>
-            <Item>
-              <Typography variant="h6">Total de Empresas</Typography>
-              <Typography variant="h4">{stats.totalCompanies}</Typography>
-            </Item>
+          <Grid component="div" item xs={12} md={6} lg={4}>
+            <Paper elevation={3}>
+              <Item>
+                <Typography variant="h6">Total de Empresas</Typography>
+                <Typography variant="h4">{stats.totalCompanies}</Typography>
+              </Item>
+            </Paper>
           </Grid>
-          <Grid component={Paper} item xs={12} md={6} lg={4}>
-            <Item>
-              <Typography variant="h6">Total de Unidades</Typography>
-              <Typography variant="h4">{stats.totalLocations}</Typography>
-            </Item>
+          <Grid component="div" item xs={12} md={6} lg={4}>
+            <Paper elevation={3}>
+              <Item>
+                <Typography variant="h6">Total de Unidades</Typography>
+                <Typography variant="h4">{stats.totalLocations}</Typography>
+              </Item>
+            </Paper>
           </Grid>
-          <Grid component={Paper} item xs={12} md={6} lg={4}>
-            <Item>
-              <Typography variant="h6">Faturamento</Typography>
-              <Typography variant="h4">R$ 0,00</Typography>
-            </Item>
+          <Grid component="div" item xs={12} md={6} lg={4}>
+            <Paper elevation={3}>
+              <Item>
+                <Typography variant="h6">Faturamento</Typography>
+                <Typography variant="h4">R$ 0,00</Typography>
+              </Item>
+            </Paper>
           </Grid>
         </Grid>
         <Grid container spacing={3} sx={{ mt: 3 }}>
@@ -149,4 +155,4 @@ export default function Dashboard() {
       </Box>
     </MainLayout>
   );
-} 
+}
