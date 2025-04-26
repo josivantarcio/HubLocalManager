@@ -1,107 +1,144 @@
 # HubLocal Manager
 
-A SaaS platform for managing companies and their locations, built with NestJS and NextJS.
+Sistema de gerenciamento de empresas e localizações desenvolvido com NestJS (backend) e Next.js (frontend).
 
-## Features
+## Visão Geral
 
-- User authentication with JWT
-- Company management (CRUD)
-- Location management per company (CRUD)
-- Multi-tenant architecture
-- Docker support
-- Database migrations
+O HubLocal Manager é uma aplicação web que permite o gerenciamento de empresas e suas localizações. O sistema oferece funcionalidades de cadastro, consulta, atualização e remoção (CRUD) de empresas e localizações, com autenticação de usuários e controle de acesso.
 
-## Tech Stack
+## Tecnologias Utilizadas
 
 ### Backend
 - NestJS
 - TypeORM
 - PostgreSQL
-- JWT Authentication
-- Docker
+- JWT para autenticação
+- Swagger para documentação da API
+- Docker e Docker Compose
 
-## Prerequisites
+### Frontend
+- Next.js
+- React
+- Material-UI
+- Tailwind CSS
+- Axios para requisições HTTP
+- React Query para gerenciamento de estado
 
-- Node.js (v20 or later)
-- Docker and Docker Compose
-- PostgreSQL (if running locally)
+## Estrutura do Projeto
 
-## Setup
-
-1. Clone the repository:
-```bash
-git clone https://github.com/yourusername/hublocal-manager.git
-cd hublocal-manager
+```
+HubLocalManager/
+├── backend/                 # Aplicação NestJS
+│   ├── src/
+│   │   ├── auth/           # Módulo de autenticação
+│   │   ├── companies/      # Módulo de empresas
+│   │   ├── locations/      # Módulo de localizações
+│   │   ├── users/          # Módulo de usuários
+│   │   ├── common/         # Utilitários e filtros comuns
+│   │   └── main.ts         # Ponto de entrada da aplicação
+│   ├── docker-compose.yml  # Configuração do Docker Compose
+│   └── Dockerfile          # Configuração do Docker
+│
+└── frontend/               # Aplicação Next.js
+    ├── src/
+    │   ├── components/     # Componentes React
+    │   ├── pages/          # Páginas da aplicação
+    │   ├── services/       # Serviços de API
+    │   └── styles/         # Estilos globais
+    └── public/             # Arquivos estáticos
 ```
 
-2. Set up environment variables:
+## Requisitos
+
+- Node.js (v16 ou superior)
+- Docker e Docker Compose
+- PostgreSQL
+
+## Instalação
+
+1. Clone o repositório:
 ```bash
-cp backend/.env.example backend/.env
+git clone https://github.com/josivantarcio/HubLocalManager
+cd HubLocalManager
 ```
 
-3. Start the services with Docker Compose:
+2. Instale as dependências do backend:
 ```bash
+cd backend
+npm install
+```
+
+3. Instale as dependências do frontend:
+```bash
+cd ../frontend
+npm install
+```
+
+4. Configure as variáveis de ambiente:
+   - Copie `.env.example` para `.env` no diretório backend
+   - Copie `.env.example` para `.env` no diretório frontend
+   - Ajuste as variáveis conforme necessário
+
+5. Inicie os containers Docker:
+```bash
+cd ..
 docker-compose up -d
 ```
 
-4. Run database migrations:
+6. Execute as migrações do banco de dados:
 ```bash
 cd backend
 npm run migration:run
 ```
 
-## Development
-
-### Backend
-
-1. Navigate to the backend directory:
-```bash
-cd backend
-```
-
-2. Install dependencies:
-```bash
-npm install
-```
-
-3. Start the development server:
+7. Inicie o backend:
 ```bash
 npm run start:dev
 ```
 
-### Database Migrations
-
-To create a new migration:
+8. Em outro terminal, inicie o frontend:
 ```bash
-npm run migration:generate src/migrations/NameOfMigration
+cd ../frontend
+npm run dev
 ```
 
-To run migrations:
-```bash
-npm run migration:run
-```
+## Uso
 
-## API Documentation
+### Backend
+- A API estará disponível em `http://localhost:3000`
+- A documentação Swagger estará disponível em `http://localhost:3000/api`
 
-Once the server is running, you can access the Swagger documentation at:
-```
-http://localhost:3000/api
-```
+### Frontend
+- A aplicação estará disponível em `http://localhost:3001`
 
-## Environment Variables
+## Endpoints da API
 
-- `DB_HOST`: Database host
-- `DB_PORT`: Database port
-- `DB_USERNAME`: Database username
-- `DB_PASSWORD`: Database password
-- `DB_NAME`: Database name
-- `DB_SYNCHRONIZE`: Auto-sync database schema (false in production)
-- `DB_LOGGING`: Enable database logging
-- `JWT_SECRET`: Secret key for JWT tokens
-- `JWT_EXPIRATION`: JWT token expiration time
-- `THROTTLE_TTL`: Rate limiting time window
-- `THROTTLE_LIMIT`: Maximum requests per time window
+### Autenticação
+- `POST /auth/login` - Login de usuário
+- `POST /auth/register` - Registro de novo usuário
 
-## License
+### Empresas
+- `POST /companies` - Criar nova empresa
+- `GET /companies` - Listar empresas
+- `GET /companies/:id` - Obter empresa específica
+- `PATCH /companies/:id` - Atualizar empresa
+- `DELETE /companies/:id` - Remover empresa
 
-This project is licensed under the MIT License. 
+### Localizações
+- `POST /locations` - Criar nova localização
+- `GET /locations` - Listar localizações
+- `GET /locations/:id` - Obter localização específica
+- `PATCH /locations/:id` - Atualizar localização
+- `DELETE /locations/:id` - Remover localização
+
+## Contribuição
+
+1. Faça um fork do projeto
+2. Crie uma branch para sua feature (`git checkout -b feature/nova-feature`)
+3. Commit suas mudanças (`git commit -m 'Adiciona nova feature'`)
+4. Push para a branch (`git push origin feature/nova-feature`)
+5. Abra um Pull Request
+
+## Licença
+
+Este projeto está licenciado sob a licença MIT - veja o arquivo [LICENSE](LICENSE) para detalhes. 

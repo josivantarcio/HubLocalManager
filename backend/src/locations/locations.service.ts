@@ -10,59 +10,44 @@ import { CompaniesService } from '../companies/companies.service';
 export class LocationsService {
   constructor(
     @InjectRepository(Location)
-    private locationsRepository: Repository<Location>,
+    private locationRepository: Repository<Location>,
     private companiesService: CompaniesService,
   ) {}
 
-  async create(userId: number, companyId: number, createLocationDto: CreateLocationDto): Promise<Location> {
-    // Verify company exists and belongs to user
-    await this.companiesService.findOne(userId, companyId);
+  async create(createLocationDto: CreateLocationDto, userId: number): Promise<Location> {
+    await this.companiesService.findOne(userId, createLocationDto.companyId);
 
-    const location = this.locationsRepository.create({
-      ...createLocationDto,
-      company: { id: companyId },
-    });
-
-    return this.locationsRepository.save(location);
+    const location = this.locationRepository.create(createLocationDto);
+    return this.locationRepository.save(location);
   }
 
-  async findAll(userId: number, companyId: number) {
-    // Verify company exists and belongs to user
+  async findAll(companyId: number, userId: number): Promise<Location[]> {
     await this.companiesService.findOne(userId, companyId);
-
-    return this.locationsRepository.find({
-      where: { company: { id: companyId } },
-    });
+    return this.locationRepository.find({ where: { companyId } });
   }
 
-  async findOne(userId: number, companyId: number, id: number): Promise<Location> {
-    // Verify company exists and belongs to user
+  async findOne(id: number, companyId: number, userId: number): Promise<Location> {
     await this.companiesService.findOne(userId, companyId);
 
-    const location = await this.locationsRepository.findOne({
-      where: { id, company: { id: companyId } },
+    const location = await this.locationRepository.findOne({
+      where: { id, companyId },
     });
 
     if (!location) {
-      throw new NotFoundException(`Location with ID ${id} not found`);
+      throw new NotFoundException('Localização não encontrada');
     }
 
     return location;
   }
 
-  async update(
-    userId: number,
-    companyId: number,
-    id: number,
-    updateLocationDto: UpdateLocationDto,
-  ): Promise<Location> {
-    const location = await this.findOne(userId, companyId, id);
+  async update(id: number, updateLocationDto: UpdateLocationDto, userId: number): Promise<Location> {
+    const location = await this.findOne(id, updateLocationDto.companyId, userId);
     Object.assign(location, updateLocationDto);
-    return this.locationsRepository.save(location);
+    return this.locationRepository.save(location);
   }
 
-  async remove(userId: number, companyId: number, id: number): Promise<void> {
-    const location = await this.findOne(userId, companyId, id);
-    await this.locationsRepository.remove(location);
+  async remove(id: number, companyId: number, userId: number): Promise<void> {
+    const location = await this.findOne(id, companyId, userId);
+    await this.locationRepository.softDelete(location.id);
   }
 }

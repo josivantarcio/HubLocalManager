@@ -1,51 +1,42 @@
 import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { User } from './user.entity';
+import { User } from './entities/user.entity';
+import { CreateUserDto } from './dto/create-user.dto';
 import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class UsersService {
   constructor(
     @InjectRepository(User)
-    private usersRepository: Repository<User>,
+    private userRepository: Repository<User>,
   ) {}
 
-  async create(userData: Partial<User>): Promise<User> {
-    const { email } = userData;
-    
-    // Check if user already exists
-    const existingUser = await this.usersRepository.findOne({ where: { email } });
+  async create(createUserDto: CreateUserDto): Promise<User> {
+    const existingUser = await this.userRepository.findOne({
+      where: { email: createUserDto.email },
+    });
+
     if (existingUser) {
-      throw new ConflictException('Email already registered');
+      throw new ConflictException('Email já cadastrado');
     }
 
-    // Hash password
-    const hashedPassword = await bcrypt.hash(userData.password, 10);
-    
-    // Create new user
-    const user = this.usersRepository.create({
-      ...userData,
+    const hashedPassword = await bcrypt.hash(createUserDto.password, 10);
+
+    const user = this.userRepository.create({
+      ...createUserDto,
       password: hashedPassword,
     });
-    
-    return this.usersRepository.save(user);
+
+    return this.userRepository.save(user);
   }
 
-  async findByEmail(email: string): Promise<User> {
-    const user = await this.usersRepository.findOne({ 
-      where: { email },
-      select: ['id', 'name', 'email', 'password']
-    });
-    
-    if (!user) {
-      throw new NotFoundException('User not found');
-    }
-    return user;
+  async findByEmail(email: string): Promise<User | undefined> {
+    return this.userRepository.findOne({ where: { email } });
   }
   
   async findOne(id: number): Promise<User> {
-    const user = await this.usersRepository.findOne({ where: { id } });
+    const user = await this.userRepository.findOne({ where: { id } });
     if (!user) {
       throw new NotFoundException(`User with ID ${id} not found`);
     }
