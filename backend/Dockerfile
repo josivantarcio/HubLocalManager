@@ -1,15 +1,23 @@
-FROM node:20-alpine
+# Usar a imagem oficial do Node.js
+FROM node:18
 
-WORKDIR /app
+# Definir o diretório de trabalho
+WORKDIR /usr/src/app
 
+# Copiar os arquivos de dependências
 COPY package*.json ./
 
+# Instalar as dependências
 RUN npm install
 
+# Copiar o restante do código
 COPY . .
 
+# Construir a aplicação NestJS
 RUN npm run build
 
-EXPOSE 3000
+# Expor a porta do backend (3001, conforme backend.md)
+EXPOSE 3001
 
-CMD ["npm", "run", "start:prod"] 
+# Comando para iniciar o backend
+CMD ["npm", "run", "start:prod"]

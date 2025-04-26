@@ -1,77 +1,66 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { useAuth } from '@/contexts/AuthContext';
+import { DashboardLayout } from '@/components/layout/DashboardLayout';
+import { CompanyCard } from '@/components/companies/CompanyCard';
 import {
   Box,
+  Typography,
+  Grid,
+  Paper,
   Card,
   CardContent,
-  Grid,
-  Typography,
   List,
   ListItem,
   ListItemText,
+  ListItemIcon,
   Divider,
-  Paper,
+  Button,
 } from '@mui/material';
-import { companyService, locationService } from '@/services/api';
-import MainLayout from '@/components/layout/MainLayout';
-import { useRouter } from 'next/navigation';
-import { useSelector } from 'react-redux';
-import { RootState } from '@/store';
-import { styled } from '@mui/material/styles';
+import {
+  Business as BusinessIcon,
+  LocationOn as LocationIcon,
+  People as PeopleIcon,
+  Add as AddIcon,
+} from '@mui/icons-material';
 
-interface DashboardStats {
-  totalCompanies: number;
-  totalLocations: number;
-  recentCompanies: any[];
-  recentLocations: any[];
+interface Company {
+  id: number;
+  name: string;
+  cnpj: string;
 }
 
-const Item = styled(Paper)(({ theme }) => ({
-  backgroundColor: theme.palette.mode === 'dark' ? '#1A2027' : '#fff',
-  ...theme.typography.body2,
-  padding: theme.spacing(2),
-  textAlign: 'center',
-  color: theme.palette.text.secondary,
-  height: '100%',
-}));
+interface Location {
+  id: number;
+  name: string;
+  address: string;
+}
 
-export default function Dashboard() {
+export default function DashboardPage() {
   const router = useRouter();
-  const { isAuthenticated } = useSelector((state: RootState) => state.auth);
-  const [stats, setStats] = useState<DashboardStats>({
-    totalCompanies: 0,
-    totalLocations: 0,
-    recentCompanies: [],
-    recentLocations: [],
-  });
+  const { isAuthenticated } = useAuth();
+  const [companies, setCompanies] = useState<Company[]>([]);
+  const [locations, setLocations] = useState<Location[]>([]);
 
   useEffect(() => {
     if (!isAuthenticated) {
-      router.push('/');
+      router.push('/login');
     }
   }, [isAuthenticated, router]);
 
+  // Mock data - replace with API calls
   useEffect(() => {
-    const fetchStats = async () => {
-      try {
-        const companies = await companyService.getAll();
-        const locations = await Promise.all(
-          companies.map((company: any) => locationService.getAll(company.id))
-        );
+    setCompanies([
+      { id: 1, name: 'Empresa A', cnpj: '12.345.678/0001-90' },
+      { id: 2, name: 'Empresa B', cnpj: '98.765.432/0001-10' },
+    ]);
 
-        setStats({
-          totalCompanies: companies.length,
-          totalLocations: locations.reduce((acc, curr) => acc + curr.length, 0),
-          recentCompanies: companies.slice(0, 5),
-          recentLocations: locations.flat().slice(0, 5),
-        });
-      } catch (error) {
-        console.error('Error fetching dashboard stats:', error);
-      }
-    };
-
-    fetchStats();
+    setLocations([
+      { id: 1, name: 'Filial Centro', address: 'Rua Principal, 123' },
+      { id: 2, name: 'Filial Norte', address: 'Av. Secundária, 456' },
+    ]);
   }, []);
 
   if (!isAuthenticated) {
@@ -79,80 +68,97 @@ export default function Dashboard() {
   }
 
   return (
-    <MainLayout>
-      <Box sx={{ flexGrow: 1, p: 3 }}>
+    <DashboardLayout>
+      <Box sx={{ p: 3 }}>
         <Typography variant="h4" gutterBottom>
           Dashboard
         </Typography>
 
-        {/* Estatísticas principais */}
-        <Grid container spacing={3}>
-          <Grid component="div" item xs={12} md={6} lg={4}>
-            <Paper elevation={3}>
-              <Item>
-                <Typography variant="h6">Total de Empresas</Typography>
-                <Typography variant="h4">{stats.totalCompanies}</Typography>
-              </Item>
+        {/* Statistics Cards */}
+        <Grid container spacing={3} sx={{ mb: 4 }}>
+          <Grid item xs={12} sm={6} md={3}>
+            <Paper sx={{ p: 2, display: 'flex', alignItems: 'center' }}>
+              <BusinessIcon color="primary" sx={{ mr: 2, fontSize: 40 }} />
+              <Box>
+                <Typography variant="h6">{companies.length}</Typography>
+                <Typography variant="body2" color="text.secondary">
+                  Empresas
+                </Typography>
+              </Box>
             </Paper>
           </Grid>
-
-          <Grid component="div" item xs={12} md={6} lg={4}>
-            <Paper elevation={3}>
-              <Item>
-                <Typography variant="h6">Total de Unidades</Typography>
-                <Typography variant="h4">{stats.totalLocations}</Typography>
-              </Item>
+          <Grid item xs={12} sm={6} md={3}>
+            <Paper sx={{ p: 2, display: 'flex', alignItems: 'center' }}>
+              <LocationIcon color="primary" sx={{ mr: 2, fontSize: 40 }} />
+              <Box>
+                <Typography variant="h6">{locations.length}</Typography>
+                <Typography variant="body2" color="text.secondary">
+                  Filiais
+                </Typography>
+              </Box>
             </Paper>
           </Grid>
-
-          <Grid component="div" item xs={12} md={6} lg={4}>
-            <Paper elevation={3}>
-              <Item>
-                <Typography variant="h6">Faturamento</Typography>
-                <Typography variant="h4">R$ 0,00</Typography>
-              </Item>
+          <Grid item xs={12} sm={6} md={3}>
+            <Paper sx={{ p: 2, display: 'flex', alignItems: 'center' }}>
+              <PeopleIcon color="primary" sx={{ mr: 2, fontSize: 40 }} />
+              <Box>
+                <Typography variant="h6">25</Typography>
+                <Typography variant="body2" color="text.secondary">
+                  Usuários
+                </Typography>
+              </Box>
             </Paper>
           </Grid>
         </Grid>
 
-        {/* Listas de itens recentes */}
-        <Grid container spacing={3} sx={{ mt: 3 }}>
-          <Grid component="div" item xs={12} md={6}>
+        {/* Companies List */}
+        <Grid container spacing={3}>
+          <Grid item xs={12} md={6}>
             <Card>
               <CardContent>
-                <Typography variant="h6" gutterBottom>
-                  Empresas Recentes
-                </Typography>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+                  <Typography variant="h6">Empresas</Typography>
+                  <Button
+                    variant="contained"
+                    startIcon={<AddIcon />}
+                    onClick={() => router.push('/companies/new')}
+                  >
+                    Nova Empresa
+                  </Button>
+                </Box>
                 <List>
-                  {stats.recentCompanies.map((company) => (
-                    <div key={company.id}>
-                      <ListItem>
-                        <ListItemText
-                          primary={company.name}
-                          secondary={`CNPJ: ${company.cnpj}`}
-                        />
-                      </ListItem>
-                      <Divider />
-                    </div>
+                  {companies.map((company) => (
+                    <CompanyCard key={company.id} company={company} />
                   ))}
                 </List>
               </CardContent>
             </Card>
           </Grid>
 
-          <Grid component="div" item xs={12} md={6}>
+          {/* Locations List */}
+          <Grid item xs={12} md={6}>
             <Card>
               <CardContent>
-                <Typography variant="h6" gutterBottom>
-                  Unidades Recentes
-                </Typography>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+                  <Typography variant="h6">Filiais</Typography>
+                  <Button
+                    variant="contained"
+                    startIcon={<AddIcon />}
+                    onClick={() => router.push('/locations/new')}
+                  >
+                    Nova Filial
+                  </Button>
+                </Box>
                 <List>
-                  {stats.recentLocations.map((location) => (
+                  {locations.map((location) => (
                     <div key={location.id}>
                       <ListItem>
+                        <ListItemIcon>
+                          <LocationIcon color="primary" />
+                        </ListItemIcon>
                         <ListItemText
                           primary={location.name}
-                          secondary={`${location.city} - ${location.state}`}
+                          secondary={location.address}
                         />
                       </ListItem>
                       <Divider />
@@ -164,6 +170,6 @@ export default function Dashboard() {
           </Grid>
         </Grid>
       </Box>
-    </MainLayout>
+    </DashboardLayout>
   );
 }
