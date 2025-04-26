@@ -2,7 +2,30 @@
 
 ## Visão Geral
 
-O backend do HubLocal Manager é construído com NestJS, um framework Node.js progressivo para construir aplicações server-side eficientes e escaláveis. Utiliza TypeORM para acesso ao banco de dados PostgreSQL e implementa autenticação JWT.
+O backend do HubLocal Manager é construído com NestJS, um framework Node.js progressivo para construir aplicações server-side eficientes e escaláveis. Utiliza TypeORM para acesso ao banco de dados PostgreSQL e implementa autenticação JWT. O sistema está configurado para rodar localmente em desenvolvimento e na AWS em produção.
+
+## Configuração de Portas
+
+- **Desenvolvimento Local**:
+  - Backend: `http://localhost:3001`
+  - PostgreSQL: `localhost:5433`
+  - Swagger: `http://localhost:3001/api`
+
+- **Produção (AWS)**:
+  - Backend: `https://api.hublocal-manager.com`
+  - PostgreSQL: AWS RDS
+  - Swagger: `https://api.hublocal-manager.com/api`
+
+## Infraestrutura AWS
+
+O backend está configurado para ser implantado na AWS usando os seguintes serviços:
+
+- **ECS (Elastic Container Service)**: Para execução dos containers Docker
+- **RDS (Relational Database Service)**: Para o banco de dados PostgreSQL
+- **S3**: Para armazenamento de arquivos estáticos
+- **Route 53**: Para gerenciamento de DNS
+- **CloudWatch**: Para monitoramento e logs
+- **IAM**: Para gerenciamento de permissões
 
 ## Estrutura do Projeto
 

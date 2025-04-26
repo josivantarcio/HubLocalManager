@@ -2,7 +2,27 @@
 
 ## Visão Geral
 
-O frontend do HubLocal Manager é construído com Next.js, React e Material-UI, oferecendo uma interface moderna e responsiva para gerenciamento de empresas e localizações.
+O frontend do HubLocal Manager é construído com Next.js, React e Material-UI, oferecendo uma interface moderna e responsiva para gerenciamento de empresas e localizações. O sistema está configurado para rodar localmente em desenvolvimento e na AWS em produção.
+
+## Configuração de Portas
+
+- **Desenvolvimento Local**:
+  - Frontend: `http://localhost:3000`
+  - Backend: `http://localhost:3001`
+
+- **Produção (AWS)**:
+  - Frontend: `https://hublocal-manager.vercel.app`
+  - Backend: `https://api.hublocal-manager.com`
+
+## Infraestrutura AWS
+
+O frontend está configurado para ser implantado na AWS usando os seguintes serviços:
+
+- **Amplify**: Para hospedagem e CI/CD
+- **CloudFront**: Para distribuição de conteúdo
+- **S3**: Para armazenamento de arquivos estáticos
+- **Route 53**: Para gerenciamento de DNS
+- **CloudWatch**: Para monitoramento e logs
 
 ## Estrutura do Projeto
 
@@ -88,7 +108,7 @@ frontend/
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000',
+  baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001',
   headers: {
     'Content-Type': 'application/json',
   },
@@ -341,7 +361,7 @@ npm start
 As variáveis de ambiente são definidas em `.env`:
 
 ```
-NEXT_PUBLIC_API_URL=http://localhost:3000
+NEXT_PUBLIC_API_URL=http://localhost:3001
 ```
 
 ## Testes

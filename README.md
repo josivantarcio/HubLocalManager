@@ -15,6 +15,7 @@ O HubLocal Manager é uma aplicação web que permite o gerenciamento de empresa
 - JWT para autenticação
 - Swagger para documentação da API
 - Docker e Docker Compose
+- AWS (RDS, ECS, S3)
 
 ### Frontend
 - Next.js
@@ -23,6 +24,7 @@ O HubLocal Manager é uma aplicação web que permite o gerenciamento de empresa
 - Tailwind CSS
 - Axios para requisições HTTP
 - React Query para gerenciamento de estado
+- AWS (Amplify, CloudFront)
 
 ## Estrutura do Projeto
 
@@ -105,11 +107,16 @@ npm run dev
 ## Uso
 
 ### Backend
-- A API estará disponível em `http://localhost:3000`
-- A documentação Swagger estará disponível em `http://localhost:3000/api`
+- A API estará disponível em `http://localhost:3001`
+- A documentação Swagger estará disponível em `http://localhost:3001/api`
 
 ### Frontend
-- A aplicação estará disponível em `http://localhost:3001`
+- A aplicação estará disponível em `http://localhost:3000`
+
+### Produção (AWS)
+- Frontend: `https://hublocal-manager.vercel.app`
+- Backend: `https://api.hublocal-manager.com`
+- Banco de Dados: AWS RDS PostgreSQL
 
 ## Endpoints da API
 
