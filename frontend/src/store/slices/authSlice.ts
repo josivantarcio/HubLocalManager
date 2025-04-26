@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { authService } from '@/services/authService';
+import { authService } from '@/services/api';
 
 interface User {
   id: number;

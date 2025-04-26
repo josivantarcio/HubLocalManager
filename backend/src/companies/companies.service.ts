@@ -21,7 +21,7 @@ export class CompaniesService {
 
   constructor(
     @InjectRepository(Company)
-    private companiesRepository: Repository<Company>,
+    private readonly companiesRepository: Repository<Company>,
   ) {}
 
   async create(
@@ -68,13 +68,15 @@ export class CompaniesService {
     userId: number,
     pagination: PaginationDto
   ): Promise<{ data: CompanyResponseDto[]; count: number }> {
+    const { page = 1, limit = 10 } = pagination;
+    const skip = (page - 1) * limit;
+
     try {
       const [companies, count] = await this.companiesRepository.findAndCount({
         where: { user: { id: userId } },
         relations: ['locations'],
-        skip: pagination.skip,
-        take: pagination.take,
-        order: { createdAt: 'DESC' }
+        skip,
+        take: limit,
       });
 
       return {
@@ -82,8 +84,10 @@ export class CompaniesService {
         count
       };
     } catch (error) {
-      this.logger.error(`Error finding companies for user ${userId}: ${error.message}`);
-      throw new InternalServerErrorException('Falha ao buscar empresas');
+      this.logger.error(
+        `Error finding companies for user ${userId}: ${error.message}`,
+      );
+      throw this.handleError(error);
     }
   }
 

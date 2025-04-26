@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common';
 import { APP_INTERCEPTOR } from '@nestjs/core';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { ThrottlerModule, ThrottlerModuleOptions } from '@nestjs/throttler';
+import { ThrottlerModule } from '@nestjs/throttler';
 import { LoggerModule } from './common/logger/logger.module';
 import { LoggingInterceptor } from './common/logger/logging.interceptor';
 import { UsersModule } from './users/users.module';
@@ -16,14 +16,10 @@ import { AuthModule } from './auth/auth.module';
       isGlobal: true,
       envFilePath: `.env.${process.env.NODE_ENV || 'development'}`,
     }),
-    ThrottlerModule.forRootAsync({
-      imports: [ConfigModule],
-      inject: [ConfigService],
-      useFactory: (config: ConfigService): ThrottlerModuleOptions => ({
-        ttl: config.get<number>('THROTTLE_TTL', 60),
-        limit: config.get<number>('THROTTLE_LIMIT', 10),
-      }),
-    }),
+    ThrottlerModule.forRoot([{
+      ttl: 60,
+      limit: 10,
+    }]),
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
