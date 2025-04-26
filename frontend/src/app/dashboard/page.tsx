@@ -85,19 +85,19 @@ export default function Dashboard() {
           Dashboard
         </Typography>
         <Grid container spacing={3}>
-          <Grid item xs={12} md={6} lg={4}>
+          <Grid component={Paper} item xs={12} md={6} lg={4}>
             <Item>
               <Typography variant="h6">Total de Empresas</Typography>
               <Typography variant="h4">{stats.totalCompanies}</Typography>
             </Item>
           </Grid>
-          <Grid item xs={12} md={6} lg={4}>
+          <Grid component={Paper} item xs={12} md={6} lg={4}>
             <Item>
               <Typography variant="h6">Total de Unidades</Typography>
               <Typography variant="h4">{stats.totalLocations}</Typography>
             </Item>
           </Grid>
-          <Grid item xs={12} md={6} lg={4}>
+          <Grid component={Paper} item xs={12} md={6} lg={4}>
             <Item>
               <Typography variant="h6">Faturamento</Typography>
               <Typography variant="h4">R$ 0,00</Typography>
@@ -105,49 +105,45 @@ export default function Dashboard() {
           </Grid>
         </Grid>
         <Grid container spacing={3} sx={{ mt: 3 }}>
-          <Grid item xs={12} md={6}>
-            <Card>
-              <CardContent>
-                <Typography variant="h6" gutterBottom>
-                  Empresas Recentes
-                </Typography>
-                <List>
-                  {stats.recentCompanies.map((company) => (
-                    <div key={company.id}>
-                      <ListItem>
-                        <ListItemText
-                          primary={company.name}
-                          secondary={`CNPJ: ${company.cnpj}`}
-                        />
-                      </ListItem>
-                      <Divider />
-                    </div>
-                  ))}
-                </List>
-              </CardContent>
-            </Card>
+          <Grid component={Card} item xs={12} md={6}>
+            <CardContent>
+              <Typography variant="h6" gutterBottom>
+                Empresas Recentes
+              </Typography>
+              <List>
+                {stats.recentCompanies.map((company) => (
+                  <div key={company.id}>
+                    <ListItem>
+                      <ListItemText
+                        primary={company.name}
+                        secondary={`CNPJ: ${company.cnpj}`}
+                      />
+                    </ListItem>
+                    <Divider />
+                  </div>
+                ))}
+              </List>
+            </CardContent>
           </Grid>
-          <Grid item xs={12} md={6}>
-            <Card>
-              <CardContent>
-                <Typography variant="h6" gutterBottom>
-                  Unidades Recentes
-                </Typography>
-                <List>
-                  {stats.recentLocations.map((location) => (
-                    <div key={location.id}>
-                      <ListItem>
-                        <ListItemText
-                          primary={location.name}
-                          secondary={`${location.city} - ${location.state}`}
-                        />
-                      </ListItem>
-                      <Divider />
-                    </div>
-                  ))}
-                </List>
-              </CardContent>
-            </Card>
+          <Grid component={Card} item xs={12} md={6}>
+            <CardContent>
+              <Typography variant="h6" gutterBottom>
+                Unidades Recentes
+              </Typography>
+              <List>
+                {stats.recentLocations.map((location) => (
+                  <div key={location.id}>
+                    <ListItem>
+                      <ListItemText
+                        primary={location.name}
+                        secondary={`${location.city} - ${location.state}`}
+                      />
+                    </ListItem>
+                    <Divider />
+                  </div>
+                ))}
+              </List>
+            </CardContent>
           </Grid>
         </Grid>
       </Box>
