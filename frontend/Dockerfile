@@ -1,23 +1,38 @@
-# Usar a imagem oficial do Node.js
-FROM node:18
+# Build stage
+FROM node:20-alpine AS builder
 
-# Definir o diretório de trabalho
 WORKDIR /usr/src/app
 
-# Copiar os arquivos de dependências
+# Install dependencies
 COPY package*.json ./
+RUN npm ci
 
-# Instalar as dependências
-RUN npm install
-
-# Copiar o restante do código
+# Copy source files
 COPY . .
 
-# Construir a aplicação Next.js
+# Build the application
 RUN npm run build
 
-# Expor a porta do frontend (3000, conforme frontend.md)
+# Production stage
+FROM node:20-alpine
+
+WORKDIR /usr/src/app
+
+# Install only production dependencies
+COPY package*.json ./
+RUN npm ci --omit=dev
+
+# Copy built files from builder
+COPY --from=builder /usr/src/app/.next ./.next
+COPY --from=builder /usr/src/app/public ./public
+COPY --from=builder /usr/src/app/package.json ./
+
+# Environment variables
+ENV NODE_ENV=production
+ENV PORT=3000
+
+# Expose port
 EXPOSE 3000
 
-# Comando para iniciar o frontend
+# Start the application
 CMD ["npm", "start"]

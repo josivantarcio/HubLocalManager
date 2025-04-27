@@ -3,7 +3,7 @@ services:
     name: hublocal-backend
     env: docker
     dockerfilePath: ./backend/Dockerfile
-    dockerCommand: npm run start:prod
+    dockerCommand: node dist/main
     envVars:
       - key: NODE_ENV
         value: production
@@ -29,6 +29,19 @@ services:
           property: database
       - key: JWT_SECRET
         generateValue: true
+    healthCheckPath: /api/health
+    autoDeploy: true
+
+  - type: web
+    name: hublocal-frontend
+    env: docker
+    dockerfilePath: ./frontend/Dockerfile
+    dockerCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: NEXT_PUBLIC_API_URL
+        value: https://hublocal-backend.onrender.com
     healthCheckPath: /api/health
     autoDeploy: true
 

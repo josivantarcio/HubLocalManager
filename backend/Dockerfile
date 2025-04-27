@@ -12,11 +12,11 @@ COPY package*.json ./
 COPY tsconfig*.json ./
 COPY ormconfig.js ./
 
-# Install production dependencies
+# Install dependencies
 RUN npm ci
 
-# Copy all source files including migrations
-COPY src ./src
+# Copy source files
+COPY . .
 
 # Build the application
 RUN npm run build
@@ -26,16 +26,16 @@ FROM node:20-alpine
 
 WORKDIR /usr/src/app
 
-# Copy package and config files
+# Copy package files
 COPY package*.json ./
-COPY tsconfig*.json ./
-COPY ormconfig.js ./
 
 # Install only production dependencies
 RUN npm ci --omit=dev
 
-# Copy built files from builder including migrations
+# Copy built files from builder
 COPY --from=builder /usr/src/app/dist ./dist
+COPY --from=builder /usr/src/app/package*.json ./
+COPY --from=builder /usr/src/app/ormconfig.js ./
 
 # Environment variables
 ENV NODE_ENV=production
@@ -48,5 +48,5 @@ EXPOSE 3001
 HEALTHCHECK --interval=30s --timeout=3s \
   CMD wget --no-verbose --tries=1 --spider http://localhost:3001/api/health || exit 1
 
-# Run migrations and start the application
-CMD ["sh", "-c", "npm run migration:run && node dist/main"]
+# Start the application
+CMD ["node", "dist/main"]
