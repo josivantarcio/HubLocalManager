@@ -7,15 +7,13 @@ import {
   Param,
   Delete,
   UseGuards,
-  Req,
-  Query,
+  Request,
 } from '@nestjs/common';
 import { CompaniesService } from './companies.service';
 import { CreateCompanyDto } from './dto/create-company.dto';
 import { UpdateCompanyDto } from './dto/update-company.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { PaginationDto } from '../common/dto/pagination.dto';
-import { Request } from 'express';
+import { CompanyResponseDto } from './dto/company-response.dto';
 
 interface RequestWithUser extends Request {
   user: {
@@ -29,31 +27,31 @@ export class CompaniesController {
   constructor(private readonly companiesService: CompaniesService) {}
 
   @Post()
-  create(@Req() req: RequestWithUser, @Body() createCompanyDto: CreateCompanyDto) {
+  create(@Body() createCompanyDto: CreateCompanyDto, @Request() req: RequestWithUser) {
     return this.companiesService.create(createCompanyDto, req.user.userId);
   }
 
   @Get()
-  findAll(@Req() req: RequestWithUser, @Query() pagination: PaginationDto) {
-    return this.companiesService.findAll(req.user.userId, pagination);
+  findAll(@Request() req: RequestWithUser): Promise<CompanyResponseDto> {
+    return this.companiesService.findAll(req.user.userId);
   }
 
   @Get(':id')
-  findOne(@Req() req: RequestWithUser, @Param('id') id: string) {
-    return this.companiesService.findOne(req.user.userId, +id);
+  findOne(@Param('id') id: string, @Request() req: RequestWithUser) {
+    return this.companiesService.findOne(+id, req.user.userId);
   }
 
   @Patch(':id')
   update(
-    @Req() req: RequestWithUser,
     @Param('id') id: string,
     @Body() updateCompanyDto: UpdateCompanyDto,
+    @Request() req: RequestWithUser,
   ) {
-    return this.companiesService.update(parseInt(id), updateCompanyDto, req.user.userId);
+    return this.companiesService.update(+id, updateCompanyDto, req.user.userId);
   }
 
   @Delete(':id')
-  remove(@Req() req: RequestWithUser, @Param('id') id: string) {
-    return this.companiesService.remove(req.user.userId, +id);
+  remove(@Param('id') id: string, @Request() req: RequestWithUser) {
+    return this.companiesService.remove(+id, req.user.userId);
   }
 }

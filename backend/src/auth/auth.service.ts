@@ -23,22 +23,22 @@ export class AuthService {
     return this.usersService.findByEmail(email);
   }
 
-  async validateUser(email: string, pass: string): Promise<any> {
+  async validateUser(email: string, password: string): Promise<any> {
     const user = await this.usersService.findByEmail(email);
-    if (user && await bcrypt.compare(pass, user.password)) {
-      const { password, ...result } = user;
-      return result;
+    if (!user) {
+      throw new UnauthorizedException('Credenciais inválidas');
     }
-    return null;
+    const passwordValid = await bcrypt.compare(password, user.password);
+    if (!passwordValid) {
+      throw new UnauthorizedException('Credenciais inválidas');
+    }
+    const { password: _, ...result } = user;
+    return result;
   }
 
   async login(loginDto: LoginDto): Promise<{ access_token: string }> {
     const { email, password } = loginDto;
     const user = await this.validateUser(email, password);
-    
-    if (!user) {
-      throw new UnauthorizedException('Credenciais inválidas');
-    }
     
     const payload = { 
       sub: user.id,

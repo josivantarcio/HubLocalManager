@@ -1,27 +1,10 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { Company } from '../entities/company.entity';
 
 export class CompanyResponseDto {
-  @ApiProperty()
-  id: number;
+  @ApiProperty({ type: [Company] })
+  companies: Company[];
 
   @ApiProperty()
-  name: string;
-
-  @ApiProperty()
-  website: string;
-
-  @ApiProperty()
-  cnpj: string;
-
-  @ApiProperty({ required: false })
-  logoUrl?: string;
-
-  @ApiProperty()
-  locationsCount: number;
-
-  @ApiProperty()
-  createdAt: Date;
-
-  @ApiProperty()
-  updatedAt: Date;
+  count: number;
 }

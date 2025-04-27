@@ -50,8 +50,12 @@ describe('LocationsService', () => {
       const companyId = 1;
       const createLocationDto: CreateLocationDto = {
         name: 'Test Location',
-        address: 'Test Address',
-        companyId,
+        cep: '12345678',
+        street: 'Test Street',
+        number: '123',
+        neighborhood: 'Test Neighborhood',
+        city: 'Test City',
+        state: 'TS',
       };
 
       const mockCompany = {
@@ -69,7 +73,7 @@ describe('LocationsService', () => {
       jest.spyOn(repository, 'create').mockReturnValue(mockLocation as any);
       jest.spyOn(repository, 'save').mockResolvedValue(mockLocation as any);
 
-      const result = await service.create(userId, createLocationDto);
+      const result = await service.create(userId, companyId, createLocationDto);
       expect(result).toEqual(mockLocation);
       expect(companiesService.findOne).toHaveBeenCalledWith(userId, companyId);
       expect(repository.create).toHaveBeenCalledWith({
@@ -85,14 +89,16 @@ describe('LocationsService', () => {
       const userId = 1;
       const companyId = 1;
       const mockLocations = [
-        { id: 1, name: 'Location 1', companyId },
-        { id: 2, name: 'Location 2', companyId },
+        { id: 1, name: 'Location 1', company: { id: companyId } },
+        { id: 2, name: 'Location 2', company: { id: companyId } },
       ];
 
+      jest.spyOn(companiesService, 'findOne').mockResolvedValue({ id: companyId } as any);
       jest.spyOn(repository, 'find').mockResolvedValue(mockLocations as any);
 
-      const result = await service.findAll(companyId);
+      const result = await service.findAll(userId, companyId);
       expect(result).toEqual(mockLocations);
+      expect(companiesService.findOne).toHaveBeenCalledWith(userId, companyId);
       expect(repository.find).toHaveBeenCalledWith({
         where: { company: { id: companyId } },
       });
@@ -107,13 +113,15 @@ describe('LocationsService', () => {
       const mockLocation = {
         id: locationId,
         name: 'Test Location',
-        companyId,
+        company: { id: companyId },
       };
 
+      jest.spyOn(companiesService, 'findOne').mockResolvedValue({ id: companyId } as any);
       jest.spyOn(repository, 'findOne').mockResolvedValue(mockLocation as any);
 
-      const result = await service.findOne(companyId, locationId);
+      const result = await service.findOne(userId, companyId, locationId);
       expect(result).toEqual(mockLocation);
+      expect(companiesService.findOne).toHaveBeenCalledWith(userId, companyId);
       expect(repository.findOne).toHaveBeenCalledWith({
         where: { id: locationId, company: { id: companyId } },
       });
@@ -132,7 +140,7 @@ describe('LocationsService', () => {
       const mockLocation = {
         id: locationId,
         name: 'Test Location',
-        companyId,
+        company: { id: companyId },
       };
 
       jest.spyOn(service, 'findOne').mockResolvedValue(mockLocation as any);
@@ -141,12 +149,12 @@ describe('LocationsService', () => {
         ...updateLocationDto,
       } as any);
 
-      const result = await service.update(companyId, locationId, updateLocationDto);
+      const result = await service.update(userId, companyId, locationId, updateLocationDto);
       expect(result).toEqual({
         ...mockLocation,
         ...updateLocationDto,
       });
-      expect(service.findOne).toHaveBeenCalledWith(companyId, locationId);
+      expect(service.findOne).toHaveBeenCalledWith(userId, companyId, locationId);
       expect(repository.save).toHaveBeenCalledWith({
         ...mockLocation,
         ...updateLocationDto,
@@ -162,14 +170,14 @@ describe('LocationsService', () => {
       const mockLocation = {
         id: locationId,
         name: 'Test Location',
-        companyId,
+        company: { id: companyId },
       };
 
       jest.spyOn(service, 'findOne').mockResolvedValue(mockLocation as any);
       jest.spyOn(repository, 'remove').mockResolvedValue(undefined);
 
-      await service.remove(companyId, locationId);
-      expect(service.findOne).toHaveBeenCalledWith(companyId, locationId);
+      await service.remove(userId, companyId, locationId);
+      expect(service.findOne).toHaveBeenCalledWith(userId, companyId, locationId);
       expect(repository.remove).toHaveBeenCalledWith(mockLocation);
     });
   });

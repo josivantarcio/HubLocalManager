@@ -1,7 +1,6 @@
-import { Entity, Column, ManyToOne, OneToMany } from 'typeorm';
-import { User } from '../users/user.entity';
-import { Location } from '../locations/location.entity';
-import { CreateDateColumn, UpdateDateColumn, PrimaryGeneratedColumn } from 'typeorm';
+import { Entity, Column, ManyToOne, OneToMany, CreateDateColumn, UpdateDateColumn, PrimaryGeneratedColumn } from 'typeorm';
+import { User } from '../../users/entities/user.entity';
+import { Location } from '../../locations/entities/location.entity';
 
 @Entity()
 export class Company {

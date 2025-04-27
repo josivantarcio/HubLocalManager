@@ -8,7 +8,7 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, EntityManager } from 'typeorm';
-import { Company } from './company.entity';
+import { Company } from './entities/company.entity';
 import { CreateCompanyDto } from './dto/create-company.dto';
 import { UpdateCompanyDto } from './dto/update-company.dto';
 import { validate } from 'class-validator';
@@ -67,7 +67,7 @@ export class CompaniesService {
   async findAll(
     userId: number,
     pagination: PaginationDto
-  ): Promise<{ data: CompanyResponseDto[]; count: number }> {
+  ): Promise<CompanyResponseDto> {
     const { page = 1, limit = 10 } = pagination;
     const skip = (page - 1) * limit;
 
@@ -80,7 +80,7 @@ export class CompaniesService {
       });
 
       return {
-        data: companies.map(company => this.toResponseDto(company)),
+        companies,
         count
       };
     } catch (error) {

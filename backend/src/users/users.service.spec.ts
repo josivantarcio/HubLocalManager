@@ -52,7 +52,7 @@ describe('UsersService', () => {
         password: hashedPassword,
       };
 
-      jest.spyOn(bcrypt, 'hash').mockResolvedValue(hashedPassword);
+      jest.spyOn(bcrypt, 'hash').mockImplementation(() => Promise.resolve(hashedPassword));
       mockUserRepository.create.mockReturnValue(mockUser);
       mockUserRepository.save.mockResolvedValue(mockUser);
 

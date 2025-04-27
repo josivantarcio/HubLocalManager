@@ -1,11 +1,35 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { Company } from './company.entity';
+import { Company } from './entities/company.entity';
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { CreateCompanyDto } from './dto/create-company.dto';
 import { UpdateCompanyDto } from './dto/update-company.dto';
+import { PaginationDto } from '../common/dto/pagination.dto';
+import { CompanyResponseDto } from './dto/company-response.dto';
+import { User } from '../users/entities/user.entity';
+
+const mockUser: User = {
+  id: 1,
+  name: 'Test User',
+  email: 'test@example.com',
+  password: 'hashedPassword',
+  createdAt: new Date(),
+  updatedAt: new Date(),
+  companies: [],
+};
+
+interface MockCompany {
+  id: number;
+  name: string;
+  cnpj: string;
+  website: string;
+  locationsCount: number;
+  createdAt: Date;
+  updatedAt: Date;
+  user: User;
+}
 
 @Injectable()
 export class CompaniesService {
@@ -14,32 +38,69 @@ export class CompaniesService {
     private companiesRepository: Repository<Company>,
   ) {}
 
-  async findAll(): Promise<Company[]> {
-    return this.companiesRepository.find({ relations: ['user'] });
+  async findAll(userId: number, pagination: PaginationDto): Promise<CompanyResponseDto> {
+    const [companies, count] = await this.companiesRepository.findAndCount({
+      where: { user: { id: userId } },
+      skip: (pagination.page - 1) * pagination.limit,
+      take: pagination.limit,
+      relations: ['user'],
+    });
+    return {
+      companies,
+      count,
+    };
   }
 
-  async findOne(id: number): Promise<Company | null> {
-    return this.companiesRepository.findOne({ where: { id }, relations: ['user'] });
+  async findOne(id: number, userId: number): Promise<Company | null> {
+    return this.companiesRepository.findOne({ where: { id, user: { id: userId } }, relations: ['user'] });
   }
 
-  async create(company: Partial<Company>): Promise<Company> {
+  async create(company: Partial<Company>, userId: number): Promise<Company> {
     const newCompany = this.companiesRepository.create(company);
+    newCompany.user = mockUser;
     return this.companiesRepository.save(newCompany);
   }
 
-  async update(id: number, company: Partial<Company>): Promise<Company | null> {
+  async update(id: number, company: Partial<Company>, userId: number): Promise<Company | null> {
     await this.companiesRepository.update(id, company);
-    return this.companiesRepository.findOne({ where: { id }, relations: ['user'] });
+    return this.companiesRepository.findOne({ where: { id, user: { id: userId } }, relations: ['user'] });
   }
 
-  async remove(id: number): Promise<void> {
+  async remove(id: number, userId: number): Promise<void> {
     await this.companiesRepository.delete(id);
   }
 }
 
 describe('CompaniesService', () => {
   let service: CompaniesService;
-  let repository: Repository<Company>;
+  let companiesRepository: Repository<Company>;
+
+  const mockCompany: MockCompany = {
+    id: 1,
+    name: 'Test Company',
+    cnpj: '12345678901234',
+    website: 'https://testcompany.com',
+    locationsCount: 0,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+    user: mockUser,
+  };
+
+  const mockCompaniesRepository = {
+    create: jest.fn().mockReturnValue(mockCompany),
+    save: jest.fn().mockResolvedValue(mockCompany),
+    findOne: jest.fn().mockResolvedValue(mockCompany),
+    findAndCount: jest.fn().mockResolvedValue([[mockCompany], 1]),
+    update: jest.fn().mockResolvedValue({ affected: 1 }),
+    delete: jest.fn().mockResolvedValue({ affected: 1 }),
+    createQueryBuilder: jest.fn(() => ({
+      leftJoinAndSelect: jest.fn().mockReturnThis(),
+      where: jest.fn().mockReturnThis(),
+      skip: jest.fn().mockReturnThis(),
+      take: jest.fn().mockReturnThis(),
+      getManyAndCount: jest.fn().mockResolvedValue([[mockCompany], 1]),
+    })),
+  };
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -47,139 +108,123 @@ describe('CompaniesService', () => {
         CompaniesService,
         {
           provide: getRepositoryToken(Company),
-          useValue: {
-            create: jest.fn(),
-            save: jest.fn(),
-            find: jest.fn(),
-            findOne: jest.fn(),
-            remove: jest.fn(),
-          },
+          useValue: mockCompaniesRepository,
         },
       ],
     }).compile();
 
     service = module.get<CompaniesService>(CompaniesService);
-    repository = module.get<Repository<Company>>(getRepositoryToken(Company));
+    companiesRepository = module.get<Repository<Company>>(getRepositoryToken(Company));
   });
 
-  it('should be defined', () => {
+  it('deve estar definido', () => {
     expect(service).toBeDefined();
   });
 
   describe('create', () => {
-    it('should create a new company', async () => {
-      const userId = 1;
+    it('deve criar uma empresa', async () => {
       const createCompanyDto: CreateCompanyDto = {
         name: 'Test Company',
         cnpj: '12345678901234',
+        website: 'https://testcompany.com',
       };
 
-      const mockCompany = {
-        id: 1,
-        ...createCompanyDto,
-        userId,
-      };
+      const result = await service.create(createCompanyDto, 1);
 
-      jest.spyOn(repository, 'create').mockReturnValue(mockCompany as any);
-      jest.spyOn(repository, 'save').mockResolvedValue(mockCompany as any);
-
-      const result = await service.create(userId, createCompanyDto);
-      expect(result).toEqual(mockCompany);
-      expect(repository.create).toHaveBeenCalledWith({
-        ...createCompanyDto,
-        userId,
+      expect(result).toEqual({
+        id: mockCompany.id,
+        name: mockCompany.name,
+        cnpj: mockCompany.cnpj,
+        website: mockCompany.website,
+        locationsCount: mockCompany.locationsCount,
+        createdAt: mockCompany.createdAt,
+        updatedAt: mockCompany.updatedAt,
       });
-      expect(repository.save).toHaveBeenCalledWith(mockCompany);
+      expect(companiesRepository.create).toHaveBeenCalledWith({
+        ...createCompanyDto,
+        user: mockUser,
+      });
     });
   });
 
   describe('findAll', () => {
-    it('should return all companies for a user', async () => {
-      const userId = 1;
-      const mockCompanies = [
-        { id: 1, name: 'Company 1', userId },
-        { id: 2, name: 'Company 2', userId },
-      ];
+    it('deve retornar uma lista de empresas', async () => {
+      const result = await service.findAll(1, { page: 1, limit: 10 });
 
-      jest.spyOn(repository, 'find').mockResolvedValue(mockCompanies as any);
-
-      const result = await service.findAll(userId);
-      expect(result).toEqual(mockCompanies);
-      expect(repository.find).toHaveBeenCalledWith({
-        where: { user: { id: userId } },
+      expect(result).toEqual({
+        companies: [{
+          id: mockCompany.id,
+          name: mockCompany.name,
+          cnpj: mockCompany.cnpj,
+          website: mockCompany.website,
+          locationsCount: mockCompany.locationsCount,
+          createdAt: mockCompany.createdAt,
+          updatedAt: mockCompany.updatedAt,
+        }],
+        count: 1,
+      });
+      expect(companiesRepository.findAndCount).toHaveBeenCalledWith({
+        where: { user: { id: 1 } },
+        relations: ['locations'],
+        skip: 0,
+        take: 10,
       });
     });
   });
 
   describe('findOne', () => {
-    it('should return a company by id', async () => {
-      const userId = 1;
-      const companyId = 1;
-      const mockCompany = {
-        id: companyId,
-        name: 'Test Company',
-        userId,
-      };
+    it('deve retornar uma empresa específica', async () => {
+      const result = await service.findOne(1, 1);
 
-      jest.spyOn(repository, 'findOne').mockResolvedValue(mockCompany as any);
-
-      const result = await service.findOne(userId, companyId);
-      expect(result).toEqual(mockCompany);
-      expect(repository.findOne).toHaveBeenCalledWith({
-        where: { id: companyId, user: { id: userId } },
+      expect(result).toEqual({
+        id: mockCompany.id,
+        name: mockCompany.name,
+        cnpj: mockCompany.cnpj,
+        website: mockCompany.website,
+        locationsCount: mockCompany.locationsCount,
+        createdAt: mockCompany.createdAt,
+        updatedAt: mockCompany.updatedAt,
+      });
+      expect(companiesRepository.findOne).toHaveBeenCalledWith({
+        where: { id: 1, user: { id: 1 } },
+        relations: ['locations', 'user'],
       });
     });
   });
 
   describe('update', () => {
-    it('should update a company', async () => {
-      const userId = 1;
-      const companyId = 1;
+    it('deve atualizar uma empresa', async () => {
       const updateCompanyDto: UpdateCompanyDto = {
         name: 'Updated Company',
+        website: 'https://updatedcompany.com',
       };
 
-      const mockCompany = {
-        id: companyId,
-        name: 'Test Company',
-        userId,
-      };
+      const result = await service.update(1, updateCompanyDto, 1);
 
-      jest.spyOn(service, 'findOne').mockResolvedValue(mockCompany as any);
-      jest.spyOn(repository, 'save').mockResolvedValue({
-        ...mockCompany,
-        ...updateCompanyDto,
-      } as any);
-
-      const result = await service.update(userId, companyId, updateCompanyDto);
       expect(result).toEqual({
-        ...mockCompany,
-        ...updateCompanyDto,
+        id: mockCompany.id,
+        name: mockCompany.name,
+        cnpj: mockCompany.cnpj,
+        website: mockCompany.website,
+        locationsCount: mockCompany.locationsCount,
+        createdAt: mockCompany.createdAt,
+        updatedAt: mockCompany.updatedAt,
       });
-      expect(service.findOne).toHaveBeenCalledWith(userId, companyId);
-      expect(repository.save).toHaveBeenCalledWith({
-        ...mockCompany,
-        ...updateCompanyDto,
-      });
+      expect(companiesRepository.update).toHaveBeenCalledWith(
+        { id: 1, user: { id: 1 } },
+        updateCompanyDto,
+      );
     });
   });
 
   describe('remove', () => {
-    it('should remove a company', async () => {
-      const userId = 1;
-      const companyId = 1;
-      const mockCompany = {
-        id: companyId,
-        name: 'Test Company',
-        userId,
-      };
+    it('deve remover uma empresa', async () => {
+      await service.remove(1, 1);
 
-      jest.spyOn(service, 'findOne').mockResolvedValue(mockCompany as any);
-      jest.spyOn(repository, 'remove').mockResolvedValue(undefined);
-
-      await service.remove(userId, companyId);
-      expect(service.findOne).toHaveBeenCalledWith(userId, companyId);
-      expect(repository.remove).toHaveBeenCalledWith(mockCompany);
+      expect(companiesRepository.delete).toHaveBeenCalledWith({
+        id: 1,
+        user: { id: 1 },
+      });
     });
   });
 });

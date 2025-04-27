@@ -15,13 +15,14 @@ export class LocationsService {
   ) {}
 
   async create(userId: number, companyId: number, createLocationDto: CreateLocationDto): Promise<Location> {
-    await this.companiesService.findOne(userId, companyId);
+    const company = await this.companiesService.findOne(userId, companyId);
 
     const location = this.locationRepository.create({
       ...createLocationDto,
-      companyId,
+      company,
     });
-    return this.locationRepository.save(location);
+
+    return await this.locationRepository.save(location);
   }
 
   async findAll(userId: number, companyId: number): Promise<Location[]> {
@@ -46,7 +47,7 @@ export class LocationsService {
   async update(userId: number, companyId: number, id: number, updateLocationDto: UpdateLocationDto): Promise<Location> {
     const location = await this.findOne(userId, companyId, id);
     Object.assign(location, updateLocationDto);
-    return this.locationRepository.save(location);
+    return await this.locationRepository.save(location);
   }
 
   async remove(userId: number, companyId: number, id: number): Promise<void> {
