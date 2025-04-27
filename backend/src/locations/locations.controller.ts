@@ -1,16 +1,16 @@
-import { Controller, Get, Post, Put, Delete, Body, Param, Req } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Req } from '@nestjs/common';
 import { LocationsService } from './locations.service';
 import { CreateLocationDto } from './dto/create-location.dto';
 import { UpdateLocationDto } from './dto/update-location.dto';
-import { JwtAuth } from '../auth/decorators/jwt-auth.decorator';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
 @Controller('companies/:companyId/locations')
-@JwtAuth()
+@UseGuards(JwtAuthGuard)
 export class LocationsController {
   constructor(private readonly locationsService: LocationsService) {}
 
   @Post()
-  async create(
+  create(
     @Req() req,
     @Param('companyId') companyId: string,
     @Body() createLocationDto: CreateLocationDto,
@@ -19,12 +19,12 @@ export class LocationsController {
   }
 
   @Get()
-  async findAll(@Req() req, @Param('companyId') companyId: string) {
+  findAll(@Req() req, @Param('companyId') companyId: string) {
     return this.locationsService.findAll(req.user.userId, +companyId);
   }
 
   @Get(':id')
-  async findOne(
+  findOne(
     @Req() req,
     @Param('companyId') companyId: string,
     @Param('id') id: string,
@@ -32,8 +32,8 @@ export class LocationsController {
     return this.locationsService.findOne(req.user.userId, +companyId, +id);
   }
 
-  @Put(':id')
-  async update(
+  @Patch(':id')
+  update(
     @Req() req,
     @Param('companyId') companyId: string,
     @Param('id') id: string,
@@ -43,7 +43,7 @@ export class LocationsController {
   }
 
   @Delete(':id')
-  async remove(
+  remove(
     @Req() req,
     @Param('companyId') companyId: string,
     @Param('id') id: string,

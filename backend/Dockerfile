@@ -3,8 +3,9 @@ FROM node:20-alpine AS builder
 
 WORKDIR /usr/src/app
 
-# Install NestJS CLI globally
-RUN npm install -g @nestjs/cli
+# Install NestJS CLI and update npm
+RUN npm install -g npm@latest && \
+    npm install -g @nestjs/cli
 
 # Install dependencies first (better caching)
 COPY package*.json ./
