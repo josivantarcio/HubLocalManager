@@ -16,6 +16,7 @@ O HubLocal Manager é uma aplicação web que permite o gerenciamento de empresa
 - Swagger para documentação da API
 - Docker e Docker Compose
 - Render.com para deploy
+- Node.js 20+
 
 ### Frontend
 - Next.js
@@ -39,7 +40,8 @@ HubLocalManager/
 │   │   ├── common/         # Utilitários e filtros comuns
 │   │   └── main.ts         # Ponto de entrada da aplicação
 │   ├── docker-compose.yml  # Configuração do Docker Compose
-│   └── Dockerfile          # Configuração do Docker
+│   ├── Dockerfile          # Configuração do Docker
+│   └── .env.production     # Variáveis de ambiente para produção
 │
 └── frontend/               # Aplicação Next.js
     ├── src/
@@ -52,7 +54,7 @@ HubLocalManager/
 
 ## Requisitos
 
-- Node.js (v16 ou superior)
+- Node.js (v20 ou superior)
 - Docker e Docker Compose
 - PostgreSQL
 - Conta no Render.com (para backend)
@@ -100,9 +102,9 @@ npm run migration:run
 npm run start:dev
 ```
 
-8. Em outro terminal, inicie o frontend:
+8. Inicie o frontend:
 ```bash
-cd frontend
+cd ../frontend
 npm run dev
 ```
 
@@ -110,68 +112,48 @@ npm run dev
 
 ### Backend (Render.com)
 
-1. Crie uma conta no [Render.com](https://render.com)
-2. Conecte seu repositório GitHub
-3. Selecione o repositório e branch
-4. O Render.com usará o `render.yaml` para configurar automaticamente
-5. Configure manualmente a variável `JWT_SECRET`
+1. Crie um novo Web Service no Render.com
+2. Selecione "Docker" como ambiente
+3. Configure as variáveis de ambiente:
+   ```
+   DB_HOST=<host do banco>
+   DB_PORT=5432
+   DB_USERNAME=<usuário>
+   DB_PASSWORD=<senha>
+   DB_NAME=<nome do banco>
+   JWT_SECRET=<uma string segura>
+   CORS_ORIGIN=https://seu-frontend.netlify.app
+   ```
+4. Configure o Health Check Path como `/api/health`
 
 ### Frontend (Netlify)
 
-1. Crie uma conta no [Netlify](https://netlify.com)
-2. Conecte seu repositório GitHub
-3. Selecione o repositório e branch
-4. O Netlify usará o `netlify.toml` para configurar automaticamente
-5. Configure a variável `NEXT_PUBLIC_API_URL` com a URL do backend após o deploy
+1. Conecte seu repositório ao Netlify
+2. Configure as variáveis de ambiente:
+   ```
+   NEXT_PUBLIC_API_URL=https://seu-backend.onrender.com
+   ```
+3. Configure o build command:
+   ```
+   npm run build
+   ```
+4. Configure o publish directory:
+   ```
+   .next
+   ```
 
-## Variáveis de Ambiente
+## Documentação
 
-### Backend (.env)
-```
-DB_HOST=localhost
-DB_PORT=5432
-DB_USERNAME=postgres
-DB_PASSWORD=postgres
-DB_NAME=hublocal
-DB_SYNCHRONIZE=false
-DB_SSL=false
-NODE_ENV=development
-JWT_SECRET=seu_secret_aqui
-JWT_EXPIRATION=1d
-```
+A documentação detalhada está disponível na pasta `docs/`:
 
-### Frontend (.env)
-```
-NEXT_PUBLIC_API_URL=http://localhost:3001
-```
-
-## Documentação da API
-
-A documentação completa da API está disponível em `/api/docs` após iniciar o backend.
-
-### Endpoints Principais
-
-#### Autenticação
-- `POST /auth/register` - Registrar novo usuário
-- `POST /auth/login` - Login
-
-#### Empresas
-- `GET /companies` - Listar todas as empresas
-- `GET /companies/:id` - Visualizar detalhes de uma empresa
-- `POST /companies` - Criar nova empresa
-- `PUT /companies/:id` - Atualizar empresa
-- `DELETE /companies/:id` - Deletar empresa
-
-#### Localizações
-- `GET /locations` - Listar todas as localizações
-- `GET /locations/:id` - Visualizar detalhes de uma localização
-- `POST /locations` - Criar nova localização
-- `PUT /locations/:id` - Atualizar localização
-- `DELETE /locations/:id` - Deletar localização
+- [Documentação do Backend](docs/backend.md)
+- [Documentação do Frontend](docs/frontend.md)
+- [Documentação da API](docs/api.md)
+- [Arquitetura do Sistema](docs/architecture.md)
 
 ## Contribuição
 
-1. Faça um fork do projeto
+1. Fork o projeto
 2. Crie uma branch para sua feature (`git checkout -b feature/AmazingFeature`)
 3. Commit suas mudanças (`git commit -m 'Add some AmazingFeature'`)
 4. Push para a branch (`git push origin feature/AmazingFeature`)
@@ -179,4 +161,4 @@ A documentação completa da API está disponível em `/api/docs` após iniciar 
 
 ## Licença
 
-Este projeto está licenciado sob a licença MIT - veja o arquivo [LICENSE](LICENSE) para detalhes. 
+Este projeto está sob a licença MIT. Veja o arquivo [LICENSE](LICENSE) para mais detalhes. 

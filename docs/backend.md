@@ -4,6 +4,13 @@
 
 O backend do HubLocal Manager é construído com NestJS, um framework Node.js progressivo para construir aplicações server-side eficientes e escaláveis. Utiliza TypeORM para acesso ao banco de dados PostgreSQL e implementa autenticação JWT. O sistema está configurado para rodar localmente em desenvolvimento e no Render.com em produção.
 
+## Requisitos
+
+- Node.js 20 ou superior
+- Docker e Docker Compose
+- PostgreSQL
+- Conta no Render.com
+
 ## Configuração de Portas
 
 - **Desenvolvimento Local**:
@@ -25,6 +32,89 @@ O backend está configurado para ser implantado no Render.com usando os seguinte
 - **Environment Variables**: Para configuração
 - **Health Checks**: Para monitoramento
 - **Auto-scaling**: Para escalabilidade
+
+## Docker
+
+O projeto utiliza Docker para containerização, com um Dockerfile multi-stage otimizado:
+
+```dockerfile
+# Build stage
+FROM node:20-alpine AS builder
+
+WORKDIR /usr/src/app
+
+# Install NestJS CLI and update npm
+RUN npm install -g npm@latest && \
+    npm install -g @nestjs/cli
+
+# Install dependencies first (better caching)
+COPY package*.json ./
+RUN npm ci
+
+# Copy source code
+COPY . .
+
+# Build application
+RUN npm run build
+
+# Production stage
+FROM node:20-alpine
+
+WORKDIR /usr/src/app
+
+# Install production dependencies only
+COPY package*.json ./
+RUN npm ci --omit=dev
+
+# Copy built files from builder
+COPY --from=builder /usr/src/app/dist ./dist
+
+# Set environment variables
+ENV NODE_ENV=production
+ENV PORT=3001
+
+# Expose port
+EXPOSE 3001
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=3s \
+  CMD wget --no-verbose --tries=1 --spider http://localhost:3001/api/health || exit 1
+
+# Start the application
+CMD ["node", "dist/main"]
+```
+
+## Variáveis de Ambiente
+
+### Desenvolvimento (.env)
+```
+DB_HOST=localhost
+DB_PORT=5432
+DB_USERNAME=postgres
+DB_PASSWORD=postgres
+DB_NAME=hublocal
+DB_SYNCHRONIZE=false
+DB_SSL=false
+NODE_ENV=development
+JWT_SECRET=seu_secret_aqui
+JWT_EXPIRATION=1d
+```
+
+### Produção (.env.production)
+```
+DB_HOST=${DB_HOST}
+DB_PORT=${DB_PORT}
+DB_USERNAME=${DB_USERNAME}
+DB_PASSWORD=${DB_PASSWORD}
+DB_NAME=${DB_NAME}
+DB_SYNCHRONIZE=false
+DB_SSL=true
+NODE_ENV=production
+PORT=${PORT}
+JWT_SECRET=${JWT_SECRET}
+JWT_EXPIRATION=1d
+CORS_ORIGIN=${CORS_ORIGIN}
+```
 
 ## Estrutura do Projeto
 
@@ -54,7 +144,8 @@ backend/
 │   └── main.ts        # Ponto de entrada
 ├── test/              # Testes
 ├── migrations/        # Migrações do banco de dados
-└── ormconfig.js      # Configuração do TypeORM
+├── Dockerfile        # Configuração do Docker
+└── .env.production   # Variáveis de ambiente para produção
 ```
 
 ## Tecnologias Utilizadas

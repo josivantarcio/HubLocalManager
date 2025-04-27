@@ -57,6 +57,59 @@ backend/
 │   ├── users/          # Gerenciamento de usuários
 │   ├── common/         # Utilitários comuns
 │   └── main.ts         # Ponto de entrada
+├── Dockerfile          # Configuração do Docker
+└── .env.production     # Variáveis de ambiente para produção
+```
+
+## Containerização
+
+O projeto utiliza Docker para containerização, com um Dockerfile multi-stage otimizado:
+
+```dockerfile
+# Build stage
+FROM node:20-alpine AS builder
+
+WORKDIR /usr/src/app
+
+# Install NestJS CLI and update npm
+RUN npm install -g npm@latest && \
+    npm install -g @nestjs/cli
+
+# Install dependencies first (better caching)
+COPY package*.json ./
+RUN npm ci
+
+# Copy source code
+COPY . .
+
+# Build application
+RUN npm run build
+
+# Production stage
+FROM node:20-alpine
+
+WORKDIR /usr/src/app
+
+# Install production dependencies only
+COPY package*.json ./
+RUN npm ci --omit=dev
+
+# Copy built files from builder
+COPY --from=builder /usr/src/app/dist ./dist
+
+# Set environment variables
+ENV NODE_ENV=production
+ENV PORT=3001
+
+# Expose port
+EXPOSE 3001
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=3s \
+  CMD wget --no-verbose --tries=1 --spider http://localhost:3001/api/health || exit 1
+
+# Start the application
+CMD ["node", "dist/main"]
 ```
 
 ## Padrões de Design
@@ -98,21 +151,77 @@ backend/
    - Gerenciamento de estado global
    - Compartilhamento de dados entre componentes
 
+## Deploy
+
+### Backend (Render.com)
+
+O backend é implantado no Render.com usando Docker, com as seguintes configurações:
+
+- **Web Service**: Container Docker
+- **PostgreSQL**: Banco de dados gerenciado
+- **Environment Variables**: Configuração dinâmica
+- **Health Checks**: Monitoramento de saúde
+- **Auto-scaling**: Escalabilidade automática
+
+### Frontend (Netlify)
+
+O frontend é implantado no Netlify, com as seguintes configurações:
+
+- **Deploy Automático**: Integração com GitHub
+- **Preview Deployments**: Para cada pull request
+- **Environment Variables**: Configuração dinâmica
+- **Cache e CDN**: Otimização de performance
+
 ## Segurança
 
 1. **Autenticação**
-   - JWT (JSON Web Tokens)
-   - Refresh tokens
-   - Proteção contra ataques comuns
+   - JWT para autenticação
+   - Tokens de acesso e refresh
+   - Proteção de rotas
 
 2. **Autorização**
-   - RBAC (Role-Based Access Control)
-   - Middleware de proteção de rotas
+   - Controle de acesso baseado em roles
+   - Guards para proteção de endpoints
+   - Validação de permissões
 
-3. **Validação de Dados**
-   - Validação no frontend e backend
-   - Sanitização de inputs
-   - Proteção contra SQL Injection
+3. **CORS**
+   - Configuração de origens permitidas
+   - Proteção contra CSRF
+   - Headers de segurança
+
+4. **Banco de Dados**
+   - Conexão SSL
+   - Migrações seguras
+   - Backup automático
+
+## Monitoramento
+
+1. **Health Checks**
+   - Endpoint `/api/health`
+   - Monitoramento de dependências
+   - Alertas automáticos
+
+2. **Logging**
+   - Logs estruturados
+   - Níveis de log configuráveis
+   - Rotação de logs
+
+3. **Métricas**
+   - Performance da aplicação
+   - Uso de recursos
+   - Tempo de resposta
+
+## Escalabilidade
+
+### Horizontal
+- Balanceamento de carga
+- Replicação de banco de dados
+- Cache
+
+### Vertical
+- Otimização de queries
+- Índices
+- Particionamento
 
 ## Banco de Dados
 
@@ -166,18 +275,6 @@ backend/
 - Performance
 - Uso de recursos
 - Alertas
-
-## Escalabilidade
-
-### Horizontal
-- Balanceamento de carga
-- Replicação de banco de dados
-- Cache
-
-### Vertical
-- Otimização de queries
-- Índices
-- Particionamento
 
 ## Deploy
 
