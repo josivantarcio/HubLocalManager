@@ -15,7 +15,7 @@ O HubLocal Manager é uma aplicação web que permite o gerenciamento de empresa
 - JWT para autenticação
 - Swagger para documentação da API
 - Docker e Docker Compose
-- AWS (RDS, ECS, S3)
+- Render.com para deploy
 
 ### Frontend
 - Next.js
@@ -24,7 +24,7 @@ O HubLocal Manager é uma aplicação web que permite o gerenciamento de empresa
 - Tailwind CSS
 - Axios para requisições HTTP
 - React Query para gerenciamento de estado
-- AWS (Amplify, CloudFront)
+- Netlify para deploy
 
 ## Estrutura do Projeto
 
@@ -55,8 +55,10 @@ HubLocalManager/
 - Node.js (v16 ou superior)
 - Docker e Docker Compose
 - PostgreSQL
+- Conta no Render.com (para backend)
+- Conta no Netlify (para frontend)
 
-## Instalação
+## Instalação e Desenvolvimento Local
 
 1. Clone o repositório:
 ```bash
@@ -100,50 +102,79 @@ npm run start:dev
 
 8. Em outro terminal, inicie o frontend:
 ```bash
-cd ../frontend
+cd frontend
 npm run dev
 ```
 
-## Uso
+## Deploy
 
-### Backend
-- A API estará disponível em `http://localhost:3001`
-- A documentação Swagger estará disponível em `http://localhost:3001/api`
+### Backend (Render.com)
 
-### Frontend
-- A aplicação estará disponível em `http://localhost:3000`
+1. Crie uma conta no [Render.com](https://render.com)
+2. Conecte seu repositório GitHub
+3. Selecione o repositório e branch
+4. O Render.com usará o `render.yaml` para configurar automaticamente
+5. Configure manualmente a variável `JWT_SECRET`
 
-### Produção (AWS)
-- Frontend: `https://hublocal-manager.vercel.app`
-- Backend: `https://api.hublocal-manager.com`
-- Banco de Dados: AWS RDS PostgreSQL
+### Frontend (Netlify)
 
-## Endpoints da API
+1. Crie uma conta no [Netlify](https://netlify.com)
+2. Conecte seu repositório GitHub
+3. Selecione o repositório e branch
+4. O Netlify usará o `netlify.toml` para configurar automaticamente
+5. Configure a variável `NEXT_PUBLIC_API_URL` com a URL do backend após o deploy
 
-### Autenticação
-- `POST /auth/login` - Login de usuário
-- `POST /auth/register` - Registro de novo usuário
+## Variáveis de Ambiente
 
-### Empresas
+### Backend (.env)
+```
+DB_HOST=localhost
+DB_PORT=5432
+DB_USERNAME=postgres
+DB_PASSWORD=postgres
+DB_NAME=hublocal
+DB_SYNCHRONIZE=false
+DB_SSL=false
+NODE_ENV=development
+JWT_SECRET=seu_secret_aqui
+JWT_EXPIRATION=1d
+```
+
+### Frontend (.env)
+```
+NEXT_PUBLIC_API_URL=http://localhost:3001
+```
+
+## Documentação da API
+
+A documentação completa da API está disponível em `/api/docs` após iniciar o backend.
+
+### Endpoints Principais
+
+#### Autenticação
+- `POST /auth/register` - Registrar novo usuário
+- `POST /auth/login` - Login
+
+#### Empresas
+- `GET /companies` - Listar todas as empresas
+- `GET /companies/:id` - Visualizar detalhes de uma empresa
 - `POST /companies` - Criar nova empresa
-- `GET /companies` - Listar empresas
-- `GET /companies/:id` - Obter empresa específica
-- `PATCH /companies/:id` - Atualizar empresa
-- `DELETE /companies/:id` - Remover empresa
+- `PUT /companies/:id` - Atualizar empresa
+- `DELETE /companies/:id` - Deletar empresa
 
-### Localizações
+#### Localizações
+- `GET /locations` - Listar todas as localizações
+- `GET /locations/:id` - Visualizar detalhes de uma localização
 - `POST /locations` - Criar nova localização
-- `GET /locations` - Listar localizações
-- `GET /locations/:id` - Obter localização específica
-- `PATCH /locations/:id` - Atualizar localização
-- `DELETE /locations/:id` - Remover localização
+- `PUT /locations/:id` - Atualizar localização
+- `DELETE /locations/:id` - Deletar localização
 
 ## Contribuição
 
 1. Faça um fork do projeto
-2. Crie uma branch para sua feature (`git checkout -b feature/nova-feature`)
-3. Commit suas mudanças (`git commit -m 'Adiciona nova feature'`)
-4. Push para a branch (`git push origin feature/nova-feature`)
+2. Crie uma branch para sua feature (`git checkout -b feature/AmazingFeature`)
+3. Commit suas mudanças (`git commit -m 'Add some AmazingFeature'`)
+4. Push para a branch (`git push origin feature/AmazingFeature`)
 5. Abra um Pull Request
 
 ## Licença

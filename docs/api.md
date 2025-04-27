@@ -4,6 +4,11 @@
 
 A API do HubLocal Manager é uma API RESTful que utiliza JSON para comunicação. Todos os endpoints requerem autenticação via JWT, exceto os endpoints de autenticação.
 
+## Base URL
+
+- **Desenvolvimento**: `http://localhost:3001`
+- **Produção**: `https://hublocal-backend.onrender.com`
+
 ## Autenticação
 
 ### Login
@@ -277,7 +282,7 @@ PATCH /locations/:id
 ```json
 {
   "name": "Nova Matriz",
-  "number": "456"
+  "street": "Nova Rua"
 }
 ```
 
@@ -287,8 +292,8 @@ PATCH /locations/:id
   "id": 1,
   "name": "Nova Matriz",
   "cep": "12345678",
-  "street": "Rua Exemplo",
-  "number": "456",
+  "street": "Nova Rua",
+  "number": "123",
   "neighborhood": "Centro",
   "city": "São Paulo",
   "state": "SP",
@@ -311,35 +316,28 @@ DELETE /locations/:id
 }
 ```
 
-## Códigos de Erro
+## Erros
 
-| Código | Descrição |
-|--------|-----------|
-| 400 | Bad Request - Requisição inválida |
-| 401 | Unauthorized - Não autenticado |
-| 403 | Forbidden - Não autorizado |
-| 404 | Not Found - Recurso não encontrado |
-| 409 | Conflict - Conflito de dados |
-| 500 | Internal Server Error - Erro interno do servidor |
+A API retorna erros no seguinte formato:
 
-## Headers
-
-### Autenticação
-```
-Authorization: Bearer <token>
+```json
+{
+  "statusCode": 400,
+  "message": "Mensagem de erro",
+  "error": "Bad Request"
+}
 ```
 
-### Content-Type
-```
-Content-Type: application/json
-```
+### Códigos de Status
 
-## Paginação
+- `200`: OK
+- `201`: Created
+- `400`: Bad Request
+- `401`: Unauthorized
+- `403`: Forbidden
+- `404`: Not Found
+- `500`: Internal Server Error
 
-Todos os endpoints de listagem suportam paginação através dos parâmetros de query:
-- `page`: Número da página (começando em 1)
-- `limit`: Número de itens por página
+## Documentação Swagger
 
-A resposta inclui:
-- `data`: Array com os itens da página atual
-- `total`: Número total de itens 
+A documentação completa da API está disponível em `/api/docs` quando a aplicação está rodando. 

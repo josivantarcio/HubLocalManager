@@ -2,7 +2,7 @@
 
 ## Visão Geral
 
-O frontend do HubLocal Manager é construído com Next.js, React e Material-UI, oferecendo uma interface moderna e responsiva para gerenciamento de empresas e localizações. O sistema está configurado para rodar localmente em desenvolvimento e na AWS em produção.
+O frontend do HubLocal Manager é construído com Next.js, React e Material-UI, oferecendo uma interface moderna e responsiva para gerenciamento de empresas e localizações. O sistema está configurado para rodar localmente em desenvolvimento e no Netlify em produção.
 
 ## Configuração de Portas
 
@@ -10,19 +10,19 @@ O frontend do HubLocal Manager é construído com Next.js, React e Material-UI, 
   - Frontend: `http://localhost:3000`
   - Backend: `http://localhost:3001`
 
-- **Produção (AWS)**:
-  - Frontend: `https://hublocal-manager.vercel.app`
-  - Backend: `https://api.hublocal-manager.com`
+- **Produção (Netlify)**:
+  - Frontend: `https://hublocal-manager.netlify.app`
+  - Backend: `https://hublocal-backend.onrender.com`
 
-## Infraestrutura AWS
+## Infraestrutura Netlify
 
-O frontend está configurado para ser implantado na AWS usando os seguintes serviços:
+O frontend está configurado para ser implantado no Netlify usando os seguintes recursos:
 
-- **Amplify**: Para hospedagem e CI/CD
-- **CloudFront**: Para distribuição de conteúdo
-- **S3**: Para armazenamento de arquivos estáticos
-- **Route 53**: Para gerenciamento de DNS
-- **CloudWatch**: Para monitoramento e logs
+- **Deploy Automático**: Integração com GitHub
+- **Preview Deployments**: Para cada pull request
+- **Environment Variables**: Para configuração
+- **Cache e CDN**: Para performance
+- **Forms e Functions**: Para funcionalidades serverless
 
 ## Estrutura do Projeto
 
@@ -202,179 +202,119 @@ export const useCreateCompany = () => {
 import { createContext, useContext, useState, useEffect } from 'react';
 import { login, register, logout } from '../services/authService';
 
-const AuthContext = createContext({
-  user: null,
-  isAuthenticated: false,
-  login: async () => {},
-  register: async () => {},
-  logout: () => {},
-});
+interface AuthContextData {
+  user: any;
+  isAuthenticated: boolean;
+  loading: boolean;
+  signIn: (email: string, password: string) => Promise<void>;
+  signUp: (userData: any) => Promise<void>;
+  signOut: () => void;
+}
 
-export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+const AuthContext = createContext<AuthContextData>({} as AuthContextData);
+
+export const AuthProvider: React.FC = ({ children }) => {
+  const [user, setUser] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const token = localStorage.getItem('token');
-    const userData = localStorage.getItem('user');
-    if (token && userData) {
-      setUser(JSON.parse(userData));
-      setIsAuthenticated(true);
-    }
+    const loadStoragedData = () => {
+      const storagedUser = localStorage.getItem('user');
+      const storagedToken = localStorage.getItem('token');
+
+      if (storagedUser && storagedToken) {
+        setUser(JSON.parse(storagedUser));
+      }
+      setLoading(false);
+    };
+
+    loadStoragedData();
   }, []);
 
-  const handleLogin = async (email, password) => {
+  const signIn = async (email: string, password: string) => {
     const response = await login(email, password);
-    localStorage.setItem('token', response.access_token);
-    localStorage.setItem('user', JSON.stringify(response.user));
-    setUser(response.user);
-    setIsAuthenticated(true);
+    const { user, access_token } = response;
+
+    localStorage.setItem('user', JSON.stringify(user));
+    localStorage.setItem('token', access_token);
+
+    setUser(user);
   };
 
-  const handleRegister = async (userData) => {
+  const signUp = async (userData: any) => {
     const response = await register(userData);
-    return response;
+    const { user, access_token } = response;
+
+    localStorage.setItem('user', JSON.stringify(user));
+    localStorage.setItem('token', access_token);
+
+    setUser(user);
   };
 
-  const handleLogout = () => {
+  const signOut = () => {
     logout();
     setUser(null);
-    setIsAuthenticated(false);
   };
 
   return (
     <AuthContext.Provider
       value={{
         user,
-        isAuthenticated,
-        login: handleLogin,
-        register: handleRegister,
-        logout: handleLogout,
+        isAuthenticated: !!user,
+        loading,
+        signIn,
+        signUp,
+        signOut,
       }}
     >
       {children}
     </AuthContext.Provider>
   );
 };
-```
 
-## Estilos
-
-### Tailwind CSS
-
-O projeto utiliza Tailwind CSS para estilização. A configuração está em `tailwind.config.js`:
-
-```javascript
-module.exports = {
-  content: [
-    './src/pages/**/*.{js,ts,jsx,tsx,mdx}',
-    './src/components/**/*.{js,ts,jsx,tsx,mdx}',
-    './src/app/**/*.{js,ts,jsx,tsx,mdx}',
-  ],
-  theme: {
-    extend: {
-      colors: {
-        primary: '#1976d2',
-        secondary: '#dc004e',
-      },
-    },
-  },
-  plugins: [],
-};
-```
-
-### Estilos Globais
-
-Os estilos globais estão em `src/styles/globals.css`:
-
-```css
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
-body {
-  @apply bg-gray-50;
-}
-
-.container {
-  @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
-}
-```
-
-## Rotas
-
-O Next.js utiliza um sistema de roteamento baseado em arquivos. As rotas são definidas pela estrutura de diretórios em `src/pages`:
-
-- `/` → `pages/index.tsx`
-- `/auth/login` → `pages/auth/login.tsx`
-- `/auth/register` → `pages/auth/register.tsx`
-- `/companies` → `pages/companies/index.tsx`
-- `/companies/[id]` → `pages/companies/[id].tsx`
-- `/locations` → `pages/locations/index.tsx`
-- `/locations/[id]` → `pages/locations/[id].tsx`
-
-## Proteção de Rotas
-
-As rotas protegidas são verificadas usando um componente `PrivateRoute`:
-
-```typescript
-// src/components/PrivateRoute.tsx
-import { useRouter } from 'next/router';
-import { useAuth } from '../hooks/useAuth';
-
-export const PrivateRoute = ({ children }) => {
-  const { isAuthenticated } = useAuth();
-  const router = useRouter();
-
-  if (!isAuthenticated) {
-    router.push('/auth/login');
-    return null;
+export const useAuth = () => {
+  const context = useContext(AuthContext);
+  if (!context) {
+    throw new Error('useAuth must be used within an AuthProvider');
   }
-
-  return children;
+  return context;
 };
 ```
 
 ## Deploy
 
-O frontend pode ser deployado em qualquer serviço que suporte Next.js, como:
+O deploy é feito automaticamente no Netlify através do arquivo `netlify.toml`. Para configurar:
 
-- Vercel
-- Netlify
-- AWS Amplify
-- Heroku
+1. Crie uma conta no [Netlify](https://netlify.com)
+2. Conecte seu repositório GitHub
+3. O Netlify usará o `netlify.toml` para configurar:
+   - Build command
+   - Publish directory
+   - Environment variables
 
-Para fazer o deploy:
+### Variáveis de Ambiente
 
-1. Construa a aplicação:
-```bash
-npm run build
-```
-
-2. Inicie a aplicação em produção:
-```bash
-npm start
-```
-
-## Variáveis de Ambiente
-
-As variáveis de ambiente são definidas em `.env`:
-
-```
-NEXT_PUBLIC_API_URL=http://localhost:3001
+```env
+NEXT_PUBLIC_API_URL=https://hublocal-backend.onrender.com
 ```
 
 ## Testes
 
-O projeto utiliza Jest e React Testing Library para testes:
-
 ```bash
-# Executar testes
-npm test
+# Testes unitários
+npm run test
 
-# Executar testes em modo watch
-npm test -- --watch
+# Testes e2e
+npm run test:e2e
 
-# Executar testes com cobertura
-npm test -- --coverage
-``` 
+# Cobertura de testes
+npm run test:cov
+```
+
+## Contribuição
+
+1. Faça um fork do projeto
+2. Crie uma branch para sua feature (`git checkout -b feature/AmazingFeature`)
+3. Commit suas mudanças (`git commit -m 'Add some AmazingFeature'`)
+4. Push para a branch (`git push origin feature/AmazingFeature`)
+5. Abra um Pull Request 

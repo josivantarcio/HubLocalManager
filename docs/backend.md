@@ -2,7 +2,7 @@
 
 ## Visão Geral
 
-O backend do HubLocal Manager é construído com NestJS, um framework Node.js progressivo para construir aplicações server-side eficientes e escaláveis. Utiliza TypeORM para acesso ao banco de dados PostgreSQL e implementa autenticação JWT. O sistema está configurado para rodar localmente em desenvolvimento e na AWS em produção.
+O backend do HubLocal Manager é construído com NestJS, um framework Node.js progressivo para construir aplicações server-side eficientes e escaláveis. Utiliza TypeORM para acesso ao banco de dados PostgreSQL e implementa autenticação JWT. O sistema está configurado para rodar localmente em desenvolvimento e no Render.com em produção.
 
 ## Configuração de Portas
 
@@ -11,21 +11,20 @@ O backend do HubLocal Manager é construído com NestJS, um framework Node.js pr
   - PostgreSQL: `localhost:5433`
   - Swagger: `http://localhost:3001/api`
 
-- **Produção (AWS)**:
-  - Backend: `https://api.hublocal-manager.com`
-  - PostgreSQL: AWS RDS
-  - Swagger: `https://api.hublocal-manager.com/api`
+- **Produção (Render.com)**:
+  - Backend: `https://hublocal-backend.onrender.com`
+  - PostgreSQL: Render.com PostgreSQL
+  - Swagger: `https://hublocal-backend.onrender.com/api`
 
-## Infraestrutura AWS
+## Infraestrutura Render.com
 
-O backend está configurado para ser implantado na AWS usando os seguintes serviços:
+O backend está configurado para ser implantado no Render.com usando os seguintes recursos:
 
-- **ECS (Elastic Container Service)**: Para execução dos containers Docker
-- **RDS (Relational Database Service)**: Para o banco de dados PostgreSQL
-- **S3**: Para armazenamento de arquivos estáticos
-- **Route 53**: Para gerenciamento de DNS
-- **CloudWatch**: Para monitoramento e logs
-- **IAM**: Para gerenciamento de permissões
+- **Web Service**: Para execução do container Docker
+- **PostgreSQL**: Para o banco de dados
+- **Environment Variables**: Para configuração
+- **Health Checks**: Para monitoramento
+- **Auto-scaling**: Para escalabilidade
 
 ## Estrutura do Projeto
 
@@ -199,8 +198,8 @@ export class User {
 
 ```typescript
 // src/companies/entities/company.entity.ts
-import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn, ManyToOne, JoinColumn } from 'typeorm';
-import { User } from '../../users/entities/user.entity';
+import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn, OneToMany } from 'typeorm';
+import { Location } from '../../locations/entities/location.entity';
 
 @Entity()
 export class Company {
@@ -219,12 +218,8 @@ export class Company {
   @Column({ nullable: true })
   logoUrl: string;
 
-  @ManyToOne(() => User)
-  @JoinColumn({ name: 'userId' })
-  user: User;
-
-  @Column()
-  userId: number;
+  @OneToMany(() => Location, location => location.company)
+  locations: Location[];
 
   @CreateDateColumn()
   createdAt: Date;
@@ -238,7 +233,7 @@ export class Company {
 
 ```typescript
 // src/locations/entities/location.entity.ts
-import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn, ManyToOne, JoinColumn } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn, ManyToOne } from 'typeorm';
 import { Company } from '../../companies/entities/company.entity';
 
 @Entity()
@@ -267,12 +262,8 @@ export class Location {
   @Column()
   state: string;
 
-  @ManyToOne(() => Company)
-  @JoinColumn({ name: 'companyId' })
+  @ManyToOne(() => Company, company => company.locations)
   company: Company;
-
-  @Column()
-  companyId: number;
 
   @CreateDateColumn()
   createdAt: Date;
@@ -518,51 +509,46 @@ npm run migration:run
 O projeto utiliza Jest para testes:
 
 ```bash
-# Executar testes
-npm test
+# Testes unitários
+npm run test
 
-# Executar testes em modo watch
-npm test -- --watch
+# Testes e2e
+npm run test:e2e
 
-# Executar testes com cobertura
-npm test -- --coverage
+# Cobertura de testes
+npm run test:cov
 ```
 
 ## Deploy
 
-O backend pode ser deployado em qualquer serviço que suporte Node.js, como:
+O deploy é feito automaticamente no Render.com através do arquivo `render.yaml`. Para configurar:
 
-- Heroku
-- AWS Elastic Beanstalk
-- Google Cloud Run
-- DigitalOcean App Platform
+1. Crie uma conta no [Render.com](https://render.com)
+2. Conecte seu repositório GitHub
+3. O Render.com usará o `render.yaml` para configurar:
+   - Serviço web
+   - Banco de dados PostgreSQL
+   - Variáveis de ambiente
 
-Para fazer o deploy:
+### Variáveis de Ambiente
 
-1. Construa a aplicação:
-```bash
-npm run build
-```
-
-2. Inicie a aplicação em produção:
-```bash
-npm start
-```
-
-## Variáveis de Ambiente
-
-As variáveis de ambiente são definidas em `.env`:
-
-```
-DB_HOST=localhost
-DB_PORT=5432
-DB_USERNAME=postgres
-DB_PASSWORD=1234
-DB_NAME=hublocal
+```env
+DB_HOST=${DB_HOST}
+DB_PORT=${DB_PORT}
+DB_USERNAME=${DB_USERNAME}
+DB_PASSWORD=${DB_PASSWORD}
+DB_NAME=${DB_NAME}
 DB_SYNCHRONIZE=false
-DB_LOGGING=true
-JWT_SECRET=seu-secret-aqui
-JWT_EXPIRATION=3600s
-THROTTLE_TTL=60
-THROTTLE_LIMIT=10
-``` 
+DB_SSL=true
+NODE_ENV=production
+JWT_SECRET=${JWT_SECRET}
+JWT_EXPIRATION=1d
+```
+
+## Contribuição
+
+1. Faça um fork do projeto
+2. Crie uma branch para sua feature (`git checkout -b feature/AmazingFeature`)
+3. Commit suas mudanças (`git commit -m 'Add some AmazingFeature'`)
+4. Push para a branch (`git push origin feature/AmazingFeature`)
+5. Abra um Pull Request 

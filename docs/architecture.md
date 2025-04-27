@@ -11,6 +11,7 @@ O HubLocal Manager é uma aplicação web moderna construída com uma arquitetur
 │                 │     │                 │     │                 │
 │   Frontend      │     │    Backend      │     │   PostgreSQL    │
 │   (Next.js)     │◄───►│   (NestJS)      │◄───►│   Database      │
+│   Netlify       │     │   Render.com    │     │   Render.com    │
 │                 │     │                 │     │                 │
 └─────────────────┘     └─────────────────┘     └─────────────────┘
 ```
@@ -176,4 +177,19 @@ backend/
 ### Vertical
 - Otimização de queries
 - Índices
-- Particionamento 
+- Particionamento
+
+## Deploy
+
+### Backend (Render.com)
+- Container Docker
+- Banco de dados PostgreSQL
+- Variáveis de ambiente
+- Health checks
+- Auto-scaling
+
+### Frontend (Netlify)
+- Deploy automático
+- Preview deployments
+- Variáveis de ambiente
+- Cache e CDN 

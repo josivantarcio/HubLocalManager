@@ -1,3 +1,117 @@
+# HubLocal Manager - Backend
+
+Backend do sistema HubLocal Manager desenvolvido com NestJS.
+
+## Descrição
+
+O backend do HubLocal Manager é uma API RESTful desenvolvida com NestJS que fornece endpoints para gerenciamento de empresas e localizações. A aplicação utiliza PostgreSQL como banco de dados e implementa autenticação JWT.
+
+## Tecnologias
+
+- NestJS
+- TypeORM
+- PostgreSQL
+- JWT
+- Swagger
+- Docker
+
+## Configuração do Ambiente
+
+1. Instale as dependências:
+```bash
+npm install
+```
+
+2. Configure as variáveis de ambiente:
+```bash
+cp .env.example .env
+```
+
+3. Configure o banco de dados:
+```bash
+# Desenvolvimento local
+docker-compose up -d
+
+# Produção
+# Configure as variáveis de ambiente no Render.com
+```
+
+## Executando a Aplicação
+
+```bash
+# Desenvolvimento
+npm run start:dev
+
+# Produção
+npm run start:prod
+```
+
+## Migrações do Banco de Dados
+
+```bash
+# Criar migração
+npm run migration:generate src/migrations/NomeDaMigracao
+
+# Executar migrações
+npm run migration:run
+
+# Reverter última migração
+npm run migration:revert
+```
+
+## Documentação da API
+
+A documentação da API está disponível em `/api/docs` quando a aplicação está rodando. Ela inclui:
+
+- Autenticação
+- Gerenciamento de Empresas
+- Gerenciamento de Localizações
+- Gerenciamento de Usuários
+
+## Estrutura do Projeto
+
+```
+src/
+├── auth/           # Módulo de autenticação
+├── companies/      # Módulo de empresas
+├── locations/      # Módulo de localizações
+├── users/          # Módulo de usuários
+├── common/         # Utilitários e filtros comuns
+└── main.ts         # Ponto de entrada da aplicação
+```
+
+## Deploy
+
+O deploy é feito automaticamente no Render.com através do arquivo `render.yaml`. Para configurar:
+
+1. Crie uma conta no [Render.com](https://render.com)
+2. Conecte seu repositório GitHub
+3. O Render.com usará o `render.yaml` para configurar:
+   - Serviço web
+   - Banco de dados PostgreSQL
+   - Variáveis de ambiente
+
+## Testes
+
+```bash
+# Testes unitários
+npm run test
+
+# Testes e2e
+npm run test:e2e
+
+# Cobertura de testes
+npm run test:cov
+```
+
+## Contribuição
+
+1. Faça um fork do projeto
+2. Crie uma branch para sua feature (`git checkout -b feature/AmazingFeature`)
+3. Commit suas mudanças (`git commit -m 'Add some AmazingFeature'`)
+4. Push para a branch (`git push origin feature/AmazingFeature`)
+5. Abra um Pull Request
+
 <p align="center">
   <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
 </p>
