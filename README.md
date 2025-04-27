@@ -102,58 +102,83 @@ npm run migration:run
 npm run start:dev
 ```
 
-8. Inicie o frontend:
+8. Em outro terminal, inicie o frontend:
 ```bash
 cd ../frontend
 npm run dev
 ```
 
+## API Documentation
+
+### Companies Endpoints
+
+#### GET /companies
+Retorna a lista de empresas do usuário autenticado.
+
+**Response:**
+```json
+{
+  "companies": [
+    {
+      "id": 1,
+      "name": "Company Name",
+      "cnpj": "12345678901234",
+      "website": "https://example.com",
+      "locationsCount": 0,
+      "createdAt": "2024-01-01T00:00:00.000Z",
+      "updatedAt": "2024-01-01T00:00:00.000Z"
+    }
+  ],
+  "count": 1
+}
+```
+
+#### POST /companies
+Cria uma nova empresa.
+
+**Request Body:**
+```json
+{
+  "name": "Company Name",
+  "cnpj": "12345678901234",
+  "website": "https://example.com"
+}
+```
+
+#### GET /companies/:id
+Retorna uma empresa específica.
+
+#### PATCH /companies/:id
+Atualiza uma empresa existente.
+
+**Request Body:**
+```json
+{
+  "name": "Updated Company Name",
+  "website": "https://updated-example.com"
+}
+```
+
+#### DELETE /companies/:id
+Remove uma empresa.
+
 ## Deploy
 
 ### Backend (Render.com)
-
-1. Crie um novo Web Service no Render.com
-2. Selecione "Docker" como ambiente
-3. Configure as variáveis de ambiente:
-   ```
-   DB_HOST=<host do banco>
-   DB_PORT=5432
-   DB_USERNAME=<usuário>
-   DB_PASSWORD=<senha>
-   DB_NAME=<nome do banco>
-   JWT_SECRET=<uma string segura>
-   CORS_ORIGIN=https://seu-frontend.netlify.app
-   ```
-4. Configure o Health Check Path como `/api/health`
+1. Crie uma nova aplicação Web Service no Render.com
+2. Conecte ao repositório GitHub
+3. Configure as variáveis de ambiente
+4. Deploy automático será iniciado
 
 ### Frontend (Netlify)
-
-1. Conecte seu repositório ao Netlify
-2. Configure as variáveis de ambiente:
-   ```
-   NEXT_PUBLIC_API_URL=https://seu-backend.onrender.com
-   ```
-3. Configure o build command:
-   ```
-   npm run build
-   ```
-4. Configure o publish directory:
-   ```
-   .next
-   ```
-
-## Documentação
-
-A documentação detalhada está disponível na pasta `docs/`:
-
-- [Documentação do Backend](docs/backend.md)
-- [Documentação do Frontend](docs/frontend.md)
-- [Documentação da API](docs/api.md)
-- [Arquitetura do Sistema](docs/architecture.md)
+1. Crie um novo site no Netlify
+2. Conecte ao repositório GitHub
+3. Configure as variáveis de ambiente
+4. Deploy automático será iniciado
 
 ## Contribuição
 
-1. Fork o projeto
+1. Faça um fork do projeto
 2. Crie uma branch para sua feature (`git checkout -b feature/AmazingFeature`)
 3. Commit suas mudanças (`git commit -m 'Add some AmazingFeature'`)
 4. Push para a branch (`git push origin feature/AmazingFeature`)
@@ -161,4 +186,4 @@ A documentação detalhada está disponível na pasta `docs/`:
 
 ## Licença
 
-Este projeto está sob a licença MIT. Veja o arquivo [LICENSE](LICENSE) para mais detalhes. 
+Este projeto está licenciado sob a licença MIT - veja o arquivo [LICENSE](LICENSE) para detalhes. 
