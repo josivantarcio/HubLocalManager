@@ -15,9 +15,8 @@ COPY ormconfig.js ./
 # Install production dependencies
 RUN npm ci
 
-# Copy all source files
+# Copy all source files including migrations
 COPY src ./src
-COPY migrations ./migrations
 
 # Build the application
 RUN npm run build
@@ -35,9 +34,8 @@ COPY ormconfig.js ./
 # Install only production dependencies
 RUN npm ci --omit=dev
 
-# Copy built files from builder
+# Copy built files from builder including migrations
 COPY --from=builder /usr/src/app/dist ./dist
-COPY --from=builder /usr/src/app/migrations ./migrations
 
 # Environment variables
 ENV NODE_ENV=production

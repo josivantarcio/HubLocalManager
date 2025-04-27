@@ -3,9 +3,12 @@ import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
 import { HttpExceptionFilter } from './common/filters/http-exception.filter';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
-import { getConnection } from 'typeorm';
+import { dataSource } from './data-source';
 
 async function bootstrap() {
+  // Inicializar a conexão com o banco de dados
+  await dataSource.initialize();
+
   const app = await NestFactory.create(AppModule);
   
   // Habilitar CORS
@@ -36,8 +39,7 @@ async function bootstrap() {
   
   // Verificar se é uma execução de migração
   if (process.argv.includes('--migrate')) {
-    const connection = getConnection();
-    await connection.runMigrations();
+    await dataSource.runMigrations();
     console.log('Migrações executadas com sucesso');
     process.exit(0);
   }
