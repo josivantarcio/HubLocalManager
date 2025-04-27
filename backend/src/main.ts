@@ -3,6 +3,7 @@ import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
 import { HttpExceptionFilter } from './common/filters/http-exception.filter';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { getConnection } from 'typeorm';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -19,9 +20,13 @@ async function bootstrap() {
     }),
   );
   
+  // Configurar filtro global de exceções
+  app.useGlobalFilters(new HttpExceptionFilter());
+  
+  // Configurar Swagger
   const config = new DocumentBuilder()
     .setTitle('HubLocal Manager API')
-    .setDescription('API para gerenciamento de empresas e localizações')
+    .setDescription('API para gerenciamento de empresas e filiais')
     .setVersion('1.0')
     .addBearerAuth()
     .build();
@@ -29,9 +34,17 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, document);
   
-  // Registrar o filtro de exceções HTTP
-  app.useGlobalFilters(new HttpExceptionFilter());
+  // Verificar se é uma execução de migração
+  if (process.argv.includes('--migrate')) {
+    const connection = getConnection();
+    await connection.runMigrations();
+    console.log('Migrações executadas com sucesso');
+    process.exit(0);
+  }
   
-  await app.listen(process.env.PORT ?? 3000);
+  // Usar a porta definida pelo ambiente ou 3001 como fallback
+  const port = process.env.PORT || 3001;
+  await app.listen(port);
+  console.log(`Application is running on: http://localhost:${port}`);
 }
 bootstrap();

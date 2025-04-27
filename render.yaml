@@ -1,0 +1,39 @@
+services:
+  - type: web
+    name: hublocal-backend
+    env: docker
+    dockerfilePath: ./backend/Dockerfile
+    dockerCommand: npm run start:prod
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DB_HOST
+        fromDatabase:
+          name: hublocal-db
+          property: host
+      - key: DB_PORT
+        fromDatabase:
+          name: hublocal-db
+          property: port
+      - key: DB_USERNAME
+        fromDatabase:
+          name: hublocal-db
+          property: user
+      - key: DB_PASSWORD
+        fromDatabase:
+          name: hublocal-db
+          property: password
+      - key: DB_NAME
+        fromDatabase:
+          name: hublocal-db
+          property: database
+      - key: JWT_SECRET
+        generateValue: true
+    healthCheckPath: /api/health
+    autoDeploy: true
+
+databases:
+  - name: hublocal-db
+    databaseName: hublocal
+    user: hublocal
+    plan: free 

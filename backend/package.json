@@ -18,6 +18,7 @@
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
+    "migrate": "ts-node -r tsconfig-paths/register src/main.ts --migrate",
     "migration:generate": "typeorm-ts-node-commonjs migration:generate -d src/dataSource.ts",
     "migration:run": "typeorm-ts-node-commonjs migration:run -d src/dataSource.ts"
   },

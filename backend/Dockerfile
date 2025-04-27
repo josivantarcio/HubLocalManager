@@ -1,22 +1,24 @@
-# Usar a imagem oficial do Node.js
-FROM node:18
+# Build stage
+FROM node:18-alpine AS builder
 
-# Definir o diretório de trabalho
 WORKDIR /usr/src/app
 
-# Copiar os arquivos de dependências
 COPY package*.json ./
+RUN npm ci
 
-# Instalar as dependências
-RUN npm install
-
-# Copiar o restante do código
 COPY . .
-
-# Construir a aplicação NestJS
 RUN npm run build
 
-# Expor a porta do backend (3001, conforme backend.md)
+# Production stage
+FROM node:18-alpine
+
+WORKDIR /usr/src/app
+
+COPY --from=builder /usr/src/app/dist ./dist
+COPY --from=builder /usr/src/app/package*.json ./
+COPY --from=builder /usr/src/app/node_modules ./node_modules
+
+# Expor a porta (Render define a porta via PORT)
 EXPOSE 3001
 
 # Comando para iniciar o backend
