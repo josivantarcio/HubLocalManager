@@ -2,36 +2,59 @@ version: '3.8'
 
 services:
   backend:
-    build: ./backend
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: hublocal-backend
+    restart: unless-stopped
     ports:
-      - "3001:3000"
+      - "3001:3001"
     environment:
-      - NODE_ENV=development
+      - NODE_ENV=production
       - DB_HOST=postgres
       - DB_PORT=5432
-      - DB_USERNAME=postgres
-      - DB_PASSWORD=postgres
-      - DB_NAME=hublocal
+      - DB_USERNAME=${DB_USERNAME:-hublocal}
+      - DB_PASSWORD=${DB_PASSWORD:-hublocal123}
+      - DB_NAME=${DB_NAME:-hublocal}
       - DB_SYNCHRONIZE=false
-      - DB_LOGGING=true
-      - JWT_SECRET=your-secret-key
+      - DB_SSL=false
+      - JWT_SECRET=${JWT_SECRET:-your-secret-key}
       - JWT_EXPIRATION=1d
     depends_on:
-      - postgres
-    volumes:
-      - ./backend:/app
-      - /app/node_modules
+      postgres:
+        condition: service_healthy
+    networks:
+      - hublocal-network
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3001/api/health"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
 
   postgres:
     image: postgres:15-alpine
+    container_name: hublocal-postgres
+    restart: unless-stopped
+    environment:
+      - POSTGRES_USER=${DB_USERNAME:-hublocal}
+      - POSTGRES_PASSWORD=${DB_PASSWORD:-hublocal123}
+      - POSTGRES_DB=${DB_NAME:-hublocal}
     ports:
       - "5433:5432"
-    environment:
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
-      - POSTGRES_DB=hublocal
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    networks:
+      - hublocal-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME:-hublocal} -d ${DB_NAME:-hublocal}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+networks:
+  hublocal-network:
+    driver: bridge
 
 volumes:
-  postgres_data: 
+  postgres_data:
+    driver: local 
