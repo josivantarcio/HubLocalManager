@@ -29,74 +29,6 @@ Sistema de gerenciamento de empresas e filiais desenvolvido com NestJS (backend)
 - Axios
 - React Hook Form
 
-## 📋 Pré-requisitos
-
-- Node.js >= 20
-- PostgreSQL >= 14
-- Docker (opcional)
-
-## 🔧 Instalação
-
-1. Clone o repositório:
-```bash
-git clone https://github.com/josivantarcio/HubLocalManager
-cd hublocal-manager
-```
-
-2. Instale as dependências:
-```bash
-# Backend
-cd backend
-npm install
-
-# Frontend
-cd ../frontend
-npm install
-```
-
-3. Configure as variáveis de ambiente:
-```bash
-# Backend
-cp backend/.env.example backend/.env
-# Edite o arquivo .env com suas configurações
-
-# Frontend
-cp frontend/.env.example frontend/.env
-# Edite o arquivo .env com suas configurações
-```
-
-4. Inicie o banco de dados:
-```bash
-# Usando Docker
-docker-compose up -d
-
-# Ou configure um banco PostgreSQL local
-```
-
-5. Execute as migrações:
-```bash
-cd backend
-npm run migration:run
-```
-
-6. Inicie os serviços:
-```bash
-# Backend
-cd backend
-npm run start:dev
-
-# Frontend (em outro terminal)
-cd frontend
-npm run dev
-```
-
-## 📚 Documentação
-
-- [Arquitetura](docs/architecture.md)
-- [Backend](docs/backend.md)
-- [Frontend](docs/frontend.md)
-- [API](docs/api.md)
-
 ## 🌐 Deploy
 
 O projeto está configurado para deploy no Render.com:
@@ -105,23 +37,48 @@ O projeto está configurado para deploy no Render.com:
 2. Frontend: `https://hublocal-frontend.onrender.com`
 3. Documentação da API: `https://hublocal-backend.onrender.com/api/docs`
 
+### Configuração do Deploy
+
+1. **Backend (Render.com)**:
+   - Crie um novo Web Service
+   - Conecte com seu repositório GitHub
+   - O Render vai detectar o render.yaml automaticamente
+   - Configure as variáveis de ambiente:
+     - DB_HOST
+     - DB_PORT
+     - DB_USERNAME
+     - DB_PASSWORD
+     - DB_NAME
+     - JWT_SECRET
+     - CORS_ORIGIN (URL do frontend)
+
+2. **Frontend (Render.com)**:
+   - Crie um novo Web Service
+   - Conecte com seu repositório GitHub
+   - Configure as variáveis de ambiente:
+     - NEXT_PUBLIC_API_URL (URL do backend)
+     - NODE_ENV=production
+
+## 📚 Documentação
+
+- [Arquitetura](docs/architecture.md)
+- [Backend](docs/backend.md)
+- [Frontend](docs/frontend.md)
+- [API](docs/api.md)
+
 ## 🐛 Debugging
 
 ### Logs
-- Backend: `logs/` (arquivos rotativos)
-- Frontend: Console do navegador (em desenvolvimento)
+- Backend: Logs disponíveis no painel do Render.com
+- Frontend: Console do navegador
 
 ### Erros Comuns
 1. Problemas de conexão com o banco:
-   - Verifique as credenciais no `.env`
+   - Verifique as credenciais no painel do Render.com
    - Confirme se o banco está rodando
 
-2. Erros de migração:
-   - Execute `npm run migration:run`
-   - Verifique os logs em `logs/error-*.log`
-
-3. Problemas de CORS:
-   - Verifique `CORS_ORIGIN` no `.env`
+2. Problemas de CORS:
+   - Verifique `CORS_ORIGIN` no painel do Render.com
    - Confirme se as URLs estão corretas
 
 ## 🤝 Contribuição
