@@ -1,46 +1,27 @@
 # Documentação da API
 
-## Visão Geral
+## 📋 Visão Geral
 
-A API do HubLocal Manager é uma API RESTful que utiliza JSON para comunicação. Todos os endpoints requerem autenticação via JWT, exceto os endpoints de autenticação.
+A API do HubLocal Manager é uma API RESTful que permite o gerenciamento de empresas e filiais. Todas as requisições devem incluir o token JWT no header `Authorization`.
 
-## Base URL
-
-- **Desenvolvimento**: `http://localhost:3001`
-- **Produção**: `https://hublocal-backend.onrender.com`
-
-## Autenticação
+## 🔐 Autenticação
 
 ### Login
-
 ```http
-POST /auth/login
-```
+POST /api/auth/login
+Content-Type: application/json
 
-**Request Body:**
-```json
 {
   "email": "usuario@exemplo.com",
   "password": "senha123"
-}
-```
-
-**Response:**
-```json
-{
-  "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-  "refresh_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
 }
 ```
 
 ### Registro
-
 ```http
-POST /auth/register
-```
+POST /api/auth/register
+Content-Type: application/json
 
-**Request Body:**
-```json
 {
   "name": "Nome do Usuário",
   "email": "usuario@exemplo.com",
@@ -48,296 +29,147 @@ POST /auth/register
 }
 ```
 
-**Response:**
-```json
-{
-  "id": 1,
-  "name": "Nome do Usuário",
-  "email": "usuario@exemplo.com",
-  "createdAt": "2025-04-26T00:00:00.000Z",
-  "updatedAt": "2025-04-26T00:00:00.000Z"
-}
-```
-
-## Empresas
+## 🏢 Empresas
 
 ### Listar Empresas
-
 ```http
-GET /companies
-```
-
-**Query Parameters:**
-- `page` (opcional): Número da página (padrão: 1)
-- `limit` (opcional): Itens por página (padrão: 10)
-
-**Response:**
-```json
-{
-  "data": [
-    {
-      "id": 1,
-      "name": "Empresa Exemplo",
-      "cnpj": "12345678000190",
-      "website": "https://exemplo.com",
-      "logoUrl": "https://exemplo.com/logo.png",
-      "createdAt": "2025-04-26T00:00:00.000Z",
-      "updatedAt": "2025-04-26T00:00:00.000Z"
-    }
-  ],
-  "total": 1
-}
-```
-
-### Obter Empresa
-
-```http
-GET /companies/:id
-```
-
-**Response:**
-```json
-{
-  "id": 1,
-  "name": "Empresa Exemplo",
-  "cnpj": "12345678000190",
-  "website": "https://exemplo.com",
-  "logoUrl": "https://exemplo.com/logo.png",
-  "createdAt": "2025-04-26T00:00:00.000Z",
-  "updatedAt": "2025-04-26T00:00:00.000Z"
-}
+GET /api/companies
+Authorization: Bearer <token>
 ```
 
 ### Criar Empresa
-
 ```http
-POST /companies
-```
+POST /api/companies
+Authorization: Bearer <token>
+Content-Type: application/json
 
-**Request Body:**
-```json
 {
-  "name": "Empresa Exemplo",
-  "cnpj": "12345678000190",
-  "website": "https://exemplo.com",
-  "logoUrl": "https://exemplo.com/logo.png"
+  "name": "Nome da Empresa",
+  "cnpj": "12345678901234",
+  "website": "https://exemplo.com"
 }
 ```
 
-**Response:**
-```json
-{
-  "id": 1,
-  "name": "Empresa Exemplo",
-  "cnpj": "12345678000190",
-  "website": "https://exemplo.com",
-  "logoUrl": "https://exemplo.com/logo.png",
-  "createdAt": "2025-04-26T00:00:00.000Z",
-  "updatedAt": "2025-04-26T00:00:00.000Z"
-}
+### Detalhes da Empresa
+```http
+GET /api/companies/:id
+Authorization: Bearer <token>
 ```
 
 ### Atualizar Empresa
-
 ```http
-PATCH /companies/:id
-```
+PATCH /api/companies/:id
+Authorization: Bearer <token>
+Content-Type: application/json
 
-**Request Body:**
-```json
 {
-  "name": "Nova Empresa",
+  "name": "Novo Nome",
   "website": "https://novo-exemplo.com"
 }
 ```
 
-**Response:**
-```json
-{
-  "id": 1,
-  "name": "Nova Empresa",
-  "cnpj": "12345678000190",
-  "website": "https://novo-exemplo.com",
-  "logoUrl": "https://exemplo.com/logo.png",
-  "createdAt": "2025-04-26T00:00:00.000Z",
-  "updatedAt": "2025-04-26T00:00:00.000Z"
-}
-```
-
 ### Remover Empresa
-
 ```http
-DELETE /companies/:id
+DELETE /api/companies/:id
+Authorization: Bearer <token>
 ```
 
-**Response:**
-```json
-{
-  "message": "Empresa removida com sucesso"
-}
-```
+## 📍 Filiais
 
-## Localizações
-
-### Listar Localizações
-
+### Listar Filiais
 ```http
-GET /locations
+GET /api/locations
+Authorization: Bearer <token>
 ```
 
-**Query Parameters:**
-- `companyId` (obrigatório): ID da empresa
-- `page` (opcional): Número da página (padrão: 1)
-- `limit` (opcional): Itens por página (padrão: 10)
-
-**Response:**
-```json
-{
-  "data": [
-    {
-      "id": 1,
-      "name": "Matriz",
-      "cep": "12345678",
-      "street": "Rua Exemplo",
-      "number": "123",
-      "neighborhood": "Centro",
-      "city": "São Paulo",
-      "state": "SP",
-      "companyId": 1,
-      "createdAt": "2025-04-26T00:00:00.000Z",
-      "updatedAt": "2025-04-26T00:00:00.000Z"
-    }
-  ],
-  "total": 1
-}
-```
-
-### Obter Localização
-
+### Criar Filial
 ```http
-GET /locations/:id
-```
+POST /api/locations
+Authorization: Bearer <token>
+Content-Type: application/json
 
-**Response:**
-```json
 {
-  "id": 1,
-  "name": "Matriz",
+  "name": "Nome da Filial",
   "cep": "12345678",
   "street": "Rua Exemplo",
   "number": "123",
-  "neighborhood": "Centro",
-  "city": "São Paulo",
-  "state": "SP",
-  "companyId": 1,
-  "createdAt": "2025-04-26T00:00:00.000Z",
-  "updatedAt": "2025-04-26T00:00:00.000Z"
-}
-```
-
-### Criar Localização
-
-```http
-POST /locations
-```
-
-**Request Body:**
-```json
-{
-  "name": "Matriz",
-  "cep": "12345678",
-  "street": "Rua Exemplo",
-  "number": "123",
-  "neighborhood": "Centro",
-  "city": "São Paulo",
-  "state": "SP",
+  "neighborhood": "Bairro",
+  "city": "Cidade",
+  "state": "Estado",
   "companyId": 1
 }
 ```
 
-**Response:**
-```json
-{
-  "id": 1,
-  "name": "Matriz",
-  "cep": "12345678",
-  "street": "Rua Exemplo",
-  "number": "123",
-  "neighborhood": "Centro",
-  "city": "São Paulo",
-  "state": "SP",
-  "companyId": 1,
-  "createdAt": "2025-04-26T00:00:00.000Z",
-  "updatedAt": "2025-04-26T00:00:00.000Z"
-}
-```
-
-### Atualizar Localização
-
+### Detalhes da Filial
 ```http
-PATCH /locations/:id
+GET /api/locations/:id
+Authorization: Bearer <token>
 ```
 
-**Request Body:**
-```json
-{
-  "name": "Nova Matriz",
-  "street": "Nova Rua"
-}
-```
-
-**Response:**
-```json
-{
-  "id": 1,
-  "name": "Nova Matriz",
-  "cep": "12345678",
-  "street": "Nova Rua",
-  "number": "123",
-  "neighborhood": "Centro",
-  "city": "São Paulo",
-  "state": "SP",
-  "companyId": 1,
-  "createdAt": "2025-04-26T00:00:00.000Z",
-  "updatedAt": "2025-04-26T00:00:00.000Z"
-}
-```
-
-### Remover Localização
-
+### Atualizar Filial
 ```http
-DELETE /locations/:id
-```
+PATCH /api/locations/:id
+Authorization: Bearer <token>
+Content-Type: application/json
 
-**Response:**
-```json
 {
-  "message": "Localização removida com sucesso"
+  "name": "Novo Nome",
+  "number": "456"
 }
 ```
 
-## Erros
+### Remover Filial
+```http
+DELETE /api/locations/:id
+Authorization: Bearer <token>
+```
+
+## ⚠️ Tratamento de Erros
 
 A API retorna erros no seguinte formato:
 
 ```json
 {
   "statusCode": 400,
-  "message": "Mensagem de erro",
-  "error": "Bad Request"
+  "timestamp": "2024-01-01T00:00:00.000Z",
+  "path": "/api/companies",
+  "error": "Bad Request",
+  "message": "Mensagem do erro"
 }
 ```
 
-### Códigos de Status
+### Códigos de Erro Comuns
 
-- `200`: OK
-- `201`: Created
-- `400`: Bad Request
-- `401`: Unauthorized
-- `403`: Forbidden
-- `404`: Not Found
-- `500`: Internal Server Error
+- 400: Requisição inválida
+- 401: Não autorizado
+- 403: Acesso negado
+- 404: Recurso não encontrado
+- 500: Erro interno do servidor
 
-## Documentação Swagger
+## 🔄 Paginação
 
-A documentação completa da API está disponível em `/api/docs` quando a aplicação está rodando. 
+Endpoints que retornam listas suportam paginação:
+
+```http
+GET /api/companies?page=1&limit=10
+```
+
+## 📊 Respostas
+
+Todas as respostas seguem o formato:
+
+```json
+{
+  "data": {}, // Dados da resposta
+  "message": "Sucesso",
+  "statusCode": 200,
+  "timestamp": "2024-01-01T00:00:00.000Z"
+}
+```
+
+## 🔍 Documentação Interativa
+
+Acesse a documentação interativa da API em:
+```
+https://hublocal-backend.onrender.com/api/docs
+``` 

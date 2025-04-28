@@ -1,182 +1,130 @@
 # HubLocal Manager
 
-Sistema de gerenciamento de empresas e localizações desenvolvido com NestJS (backend) e Next.js (frontend).
+Sistema de gerenciamento de empresas e filiais desenvolvido com NestJS (backend) e Next.js (frontend).
 
-## Visão Geral
+## 🚀 Funcionalidades
 
-O HubLocal Manager é uma aplicação web que permite o gerenciamento de empresas e suas localizações. O sistema oferece funcionalidades de cadastro, consulta, atualização e remoção (CRUD) de empresas e localizações, com autenticação de usuários e controle de acesso.
+- Autenticação de usuários
+- Gerenciamento de empresas
+- Gerenciamento de filiais
+- Interface moderna e responsiva
+- API RESTful documentada
+- Tratamento de erros robusto
+- Logs estruturados
 
-## Tecnologias Utilizadas
+## 🛠️ Tecnologias
 
 ### Backend
 - NestJS
 - TypeORM
 - PostgreSQL
-- JWT para autenticação
-- Swagger para documentação da API
-- Docker e Docker Compose
-- Render.com para deploy
-- Node.js 20+
+- JWT Authentication
+- Swagger/OpenAPI
+- Winston Logger
 
 ### Frontend
 - Next.js
-- React
 - Material-UI
-- Tailwind CSS
-- Axios para requisições HTTP
-- React Query para gerenciamento de estado
-- Netlify para deploy
+- Redux Toolkit
+- Axios
+- React Hook Form
 
-## Estrutura do Projeto
+## 📋 Pré-requisitos
 
-```
-HubLocalManager/
-├── backend/                 # Aplicação NestJS
-│   ├── src/
-│   │   ├── auth/           # Módulo de autenticação
-│   │   ├── companies/      # Módulo de empresas
-│   │   ├── locations/      # Módulo de localizações
-│   │   ├── users/          # Módulo de usuários
-│   │   ├── common/         # Utilitários e filtros comuns
-│   │   └── main.ts         # Ponto de entrada da aplicação
-│   ├── docker-compose.yml  # Configuração do Docker Compose
-│   ├── Dockerfile          # Configuração do Docker
-│   └── .env.production     # Variáveis de ambiente para produção
-│
-└── frontend/               # Aplicação Next.js
-    ├── src/
-    │   ├── components/     # Componentes React
-    │   ├── pages/          # Páginas da aplicação
-    │   ├── services/       # Serviços de API
-    │   └── styles/         # Estilos globais
-    └── public/             # Arquivos estáticos
-```
+- Node.js >= 20
+- PostgreSQL >= 14
+- Docker (opcional)
 
-## Requisitos
-
-- Node.js (v20 ou superior)
-- Docker e Docker Compose
-- PostgreSQL
-- Conta no Render.com (para backend)
-- Conta no Netlify (para frontend)
-
-## Instalação e Desenvolvimento Local
+## 🔧 Instalação
 
 1. Clone o repositório:
 ```bash
 git clone https://github.com/josivantarcio/HubLocalManager
-cd HubLocalManager
+cd hublocal-manager
 ```
 
-2. Instale as dependências do backend:
+2. Instale as dependências:
 ```bash
+# Backend
 cd backend
 npm install
-```
 
-3. Instale as dependências do frontend:
-```bash
+# Frontend
 cd ../frontend
 npm install
 ```
 
-4. Configure as variáveis de ambiente:
-   - Copie `.env.example` para `.env` no diretório backend
-   - Copie `.env.example` para `.env` no diretório frontend
-   - Ajuste as variáveis conforme necessário
-
-5. Inicie os containers Docker:
+3. Configure as variáveis de ambiente:
 ```bash
-cd ..
-docker-compose up -d
+# Backend
+cp backend/.env.example backend/.env
+# Edite o arquivo .env com suas configurações
+
+# Frontend
+cp frontend/.env.example frontend/.env
+# Edite o arquivo .env com suas configurações
 ```
 
-6. Execute as migrações do banco de dados:
+4. Inicie o banco de dados:
+```bash
+# Usando Docker
+docker-compose up -d
+
+# Ou configure um banco PostgreSQL local
+```
+
+5. Execute as migrações:
 ```bash
 cd backend
 npm run migration:run
 ```
 
-7. Inicie o backend:
+6. Inicie os serviços:
 ```bash
+# Backend
+cd backend
 npm run start:dev
-```
 
-8. Em outro terminal, inicie o frontend:
-```bash
-cd ../frontend
+# Frontend (em outro terminal)
+cd frontend
 npm run dev
 ```
 
-## API Documentation
+## 📚 Documentação
 
-### Companies Endpoints
+- [Arquitetura](docs/architecture.md)
+- [Backend](docs/backend.md)
+- [Frontend](docs/frontend.md)
+- [API](docs/api.md)
 
-#### GET /companies
-Retorna a lista de empresas do usuário autenticado.
+## 🌐 Deploy
 
-**Response:**
-```json
-{
-  "companies": [
-    {
-      "id": 1,
-      "name": "Company Name",
-      "cnpj": "12345678901234",
-      "website": "https://example.com",
-      "locationsCount": 0,
-      "createdAt": "2024-01-01T00:00:00.000Z",
-      "updatedAt": "2024-01-01T00:00:00.000Z"
-    }
-  ],
-  "count": 1
-}
-```
+O projeto está configurado para deploy no Render.com:
 
-#### POST /companies
-Cria uma nova empresa.
+1. Backend: `https://hublocal-backend.onrender.com`
+2. Frontend: `https://hublocal-frontend.onrender.com`
+3. Documentação da API: `https://hublocal-backend.onrender.com/api/docs`
 
-**Request Body:**
-```json
-{
-  "name": "Company Name",
-  "cnpj": "12345678901234",
-  "website": "https://example.com"
-}
-```
+## 🐛 Debugging
 
-#### GET /companies/:id
-Retorna uma empresa específica.
+### Logs
+- Backend: `logs/` (arquivos rotativos)
+- Frontend: Console do navegador (em desenvolvimento)
 
-#### PATCH /companies/:id
-Atualiza uma empresa existente.
+### Erros Comuns
+1. Problemas de conexão com o banco:
+   - Verifique as credenciais no `.env`
+   - Confirme se o banco está rodando
 
-**Request Body:**
-```json
-{
-  "name": "Updated Company Name",
-  "website": "https://updated-example.com"
-}
-```
+2. Erros de migração:
+   - Execute `npm run migration:run`
+   - Verifique os logs em `logs/error-*.log`
 
-#### DELETE /companies/:id
-Remove uma empresa.
+3. Problemas de CORS:
+   - Verifique `CORS_ORIGIN` no `.env`
+   - Confirme se as URLs estão corretas
 
-## Deploy
-
-### Backend (Render.com)
-1. Crie uma nova aplicação Web Service no Render.com
-2. Conecte ao repositório GitHub
-3. Configure as variáveis de ambiente
-4. Deploy automático será iniciado
-
-### Frontend (Netlify)
-1. Crie um novo site no Netlify
-2. Conecte ao repositório GitHub
-3. Configure as variáveis de ambiente
-4. Deploy automático será iniciado
-
-## Contribuição
+## 🤝 Contribuição
 
 1. Faça um fork do projeto
 2. Crie uma branch para sua feature (`git checkout -b feature/AmazingFeature`)
@@ -184,6 +132,10 @@ Remove uma empresa.
 4. Push para a branch (`git push origin feature/AmazingFeature`)
 5. Abra um Pull Request
 
-## Licença
+## 📝 Licença
 
-Este projeto está licenciado sob a licença MIT - veja o arquivo [LICENSE](LICENSE) para detalhes. 
+Este projeto está sob a licença MIT. Veja o arquivo [LICENSE](LICENSE) para mais detalhes.
+
+## 📞 Suporte
+
+Em caso de problemas, abra uma issue no GitHub ou entre em contato com a equipe de desenvolvimento. 
