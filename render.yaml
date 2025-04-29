@@ -1,12 +1,15 @@
 services:
   - type: web
     name: hublocal-backend
-    env: docker
-    dockerfilePath: ./backend/Dockerfile
-    dockerCommand: node dist/main
+    runtime: docker
+    env: node
+    buildCommand: npm install && npm run build
+    startCommand: node dist/main
     envVars:
       - key: NODE_ENV
         value: production
+      - key: PORT
+        value: 3001
       - key: DB_HOST
         fromDatabase:
           name: hublocal-db
@@ -15,6 +18,10 @@ services:
         fromDatabase:
           name: hublocal-db
           property: port
+      - key: DB_NAME
+        fromDatabase:
+          name: hublocal-db
+          property: database
       - key: DB_USERNAME
         fromDatabase:
           name: hublocal-db
@@ -23,30 +30,21 @@ services:
         fromDatabase:
           name: hublocal-db
           property: password
-      - key: DB_NAME
-        fromDatabase:
-          name: hublocal-db
-          property: database
+      - key: DB_SYNCHRONIZE
+        value: "false"
+      - key: DB_SSL
+        value: "true"
       - key: JWT_SECRET
-        generateValue: true
-    healthCheckPath: /api/health
-    autoDeploy: true
-
-  - type: web
-    name: hublocal-frontend
-    env: docker
-    dockerfilePath: ./frontend/Dockerfile
-    dockerCommand: npm start
-    envVars:
-      - key: NODE_ENV
-        value: production
-      - key: NEXT_PUBLIC_API_URL
-        value: https://hublocal-backend.onrender.com
-    healthCheckPath: /api/health
-    autoDeploy: true
+        value: "8f7fc1d56cb96bfe2dc217142cbc8192d42da63adf3415bcc582184956b25ce8"
+      - key: JWT_EXPIRATION
+        value: "3600s"
+      - key: THROTTLE_TTL
+        value: "60"
+      - key: THROTTLE_LIMIT
+        value: "10"
 
 databases:
   - name: hublocal-db
     databaseName: hublocal
-    user: hublocal
-    plan: free 
+    user: postgres
+    plan: free
