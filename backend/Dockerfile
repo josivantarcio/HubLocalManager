@@ -1,31 +1,44 @@
-# ─── Stage 1: build ───────────────────────────────────────────────────────
-FROM node:20-alpine AS builder
-WORKDIR /usr/src/app
+# Build stage
+FROM node:22-alpine AS builder
 
-# 1) Copia package.json e instala todas as deps
-COPY package.json package-lock.json* ./
+WORKDIR /app
+
+# Copy package files
+COPY package*.json ./
+
+# Install dependencies
 RUN npm ci
 
-# 2) Copia código-fonte e compila
-COPY tsconfig*.json ./
-COPY src/ ./src/
-COPY ormconfig.js ./               # pega seu ormconfig.js
-RUN npm run build                  # deve gerar dist/
+# Copy source code
+COPY . .
 
-# ─── Stage 2: produção ───────────────────────────────────────────────────
-FROM node:20-alpine
-WORKDIR /usr/src/app
+# Build application
+RUN npm run build
 
-# 3) Instala apenas deps de produção
-COPY package.json package-lock.json* ./
+# Production stage
+FROM node:22-alpine
+
+WORKDIR /app
+
+# Copy package files
+COPY package*.json ./
+
+# Install only production dependencies
 RUN npm ci --only=production
 
-# 4) Traz build e config do stage anterior
-COPY --from=builder /usr/src/app/dist ./dist
-COPY --from=builder /usr/src/app/ormconfig.js ./
+# Copy built files from builder stage
+COPY --from=builder /app/dist ./dist
 
+# Set environment variables
 ENV NODE_ENV=production
-EXPOSE 3000                         # porta padrão NestJS
+ENV PORT=3001
 
-# 5) Comando de startup
-CMD ["node", "dist/main.js"]
+# Expose port
+EXPOSE 3001
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+  CMD wget --no-verbose --tries=1 --spider http://localhost:3001/api/health || exit 1
+
+# Start application
+CMD ["node", "dist/main"]
