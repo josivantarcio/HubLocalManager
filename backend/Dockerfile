@@ -3,33 +3,26 @@ FROM node:22-alpine AS builder
 
 WORKDIR /app
 
-# Install NestJS CLI globally
-RUN npm install -g @nestjs/cli
-
-# Copy package files
+# Install dependencies first (for better caching)
 COPY package*.json ./
-
-# Install dependencies
 RUN npm ci
 
 # Copy source code
 COPY . .
 
 # Build application
-RUN npm run prebuild && npm run build
+RUN npm run build
 
 # Production stage
 FROM node:22-alpine
 
 WORKDIR /app
 
-# Copy package files
+# Copy only production dependencies
 COPY package*.json ./
-
-# Install only production dependencies
 RUN npm ci --only=production
 
-# Copy built files from builder stage
+# Copy built files
 COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/node_modules ./node_modules
 
