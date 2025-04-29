@@ -3,6 +3,9 @@ FROM node:22-alpine AS builder
 
 WORKDIR /app
 
+# Install NestJS CLI globally
+RUN npm install -g @nestjs/cli
+
 # Copy package files
 COPY package*.json ./
 
